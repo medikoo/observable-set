@@ -39,11 +39,9 @@ module.exports = memoize(function (Constructor) {
 			this.emit('clear');
 		}),
 		delete: d(function (value) {
-			if (del.call(this, value)) {
-				this.emit('delete', value);
-				return true;
-			}
-			return false;
+			if (!del.call(this, value)) return false;
+			this.emit('delete', value);
+			return true;
 		})
 	}));
 
