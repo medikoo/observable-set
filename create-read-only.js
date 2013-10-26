@@ -18,9 +18,7 @@ module.exports = memoize(function (Constructor) {
 		if (!(this instanceof ReadOnly)) {
 			return new ReadOnly(arguments[0], arguments[1]);
 		}
-		this.add = this._add;
 		Constructor.apply(this, arguments);
-		delete this.add;
 	};
 
 	ReadOnly.prototype = create(Constructor.prototype, {
