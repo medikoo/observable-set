@@ -4,7 +4,8 @@ var remove    = require('es5-ext/array/#/remove')
   , isSet     = require('es6-set/is-set')
   , toArray   = require('es6-iterator/to-array')
   , filterMap = require('./filter-map').tests
-  , andOrNot  = require('./and-or-not').tests;
+  , andOrNot  = require('./and-or-not').tests
+  , oToArray  = require('./to-array').tests;
 
 module.exports = function (ObservableSet, a) {
 	var arr = ['foo', 'bar', 23]
@@ -48,4 +49,5 @@ module.exports = function (ObservableSet, a) {
 
 	filterMap(ObservableSet, a);
 	andOrNot(ObservableSet, a);
+	oToArray(ObservableSet, a);
 };
