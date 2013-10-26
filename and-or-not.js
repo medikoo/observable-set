@@ -31,20 +31,31 @@ module.exports = memoize(function (ObservableSet) {
 	  , and, or, not, orMethod;
 
 	and = memPrimitive(function (id, a, b) {
-		var result = new ReadOnly(), aAdd, bAdd, onDel, onClear, disposed
-		  , resolved;
-		a.forEach(aAdd = function (value) {
+		var result = new ReadOnly(), aListener, bListener, disposed, resolved;
+		a.forEach(function (value) {
 			if (b.has(value)) result._add(value);
 		});
-		a.on('add', aAdd);
-		a.on('delete', onDel = function (value) { result._delete(value); });
-		a.on('clear', onClear = function () { result._clear(); });
-		b.forEach(bAdd = function (value) {
+		a.on('change', aListener = function (type, value) {
+			if (type === 'add') {
+				if (b.has(value)) result._add(value);
+			} else if (type === 'delete') {
+				result._delete(value);
+			} else if (type === 'clear') {
+				result._clear();
+			}
+		});
+		b.forEach(function (value) {
 			if (a.has(value)) result._add(value);
 		});
-		b.on('add', bAdd);
-		b.on('delete', onDel);
-		b.on('clear', onClear);
+		b.on('change', bListener = function (type, value) {
+			if (type === 'add') {
+				if (a.has(value)) result._add(value);
+			} else if (type === 'delete') {
+				result._delete(value);
+			} else if (type === 'clear') {
+				result._clear();
+			}
+		});
 		resolved = [];
 		if (a.__and__) push.apply(resolved, a.__and__);
 		else resolved.push(a);
@@ -59,12 +70,8 @@ module.exports = memoize(function (ObservableSet) {
 			}),
 			_dispose: d(function () {
 				disposed = true;
-				a.off('add', aAdd);
-				a.off('delete', onDel);
-				a.off('clear', onClear);
-				b.off('add', bAdd);
-				b.off('delete', onDel);
-				b.off('clear', onClear);
+				a.off('change', aListener);
+				b.off('change', bListener);
 				delete this.__and__;
 				if (this.__innerDeps__) {
 					this.__innerDeps__.forEach(invokeUnref);
@@ -76,25 +83,34 @@ module.exports = memoize(function (ObservableSet) {
 	}, { length: 1, refCounter: true, dispose: invokeDispose });
 
 	or = memPrimitive(function (id, a, b) {
-		var result = new ReadOnly(), onAdd, aDel, bDel, onClear, disposed
+		var result = new ReadOnly(), onAdd, aListener, bListener, disposed
 		  , resolved;
 		a.forEach(onAdd = function (value) { result._add(value); });
-		a.on('add', onAdd);
-		a.on('delete', aDel = function (value) {
-			if (!b.has(value)) result._delete(value);
-		});
-		a.on('clear', onClear = function () {
-			result.forEach(function (value) {
-				if (a.has(value) || b.has(value)) return;
-				result._delete(value);
-			});
+		a.on('change', aListener = function (type, value) {
+			if (type === 'add') {
+				result._add(value);
+			} else if (type === 'delete') {
+				if (!b.has(value)) result._delete(value);
+			} else if (type === 'clear') {
+				result.forEach(function (value) {
+					if (a.has(value) || b.has(value)) return;
+					result._delete(value);
+				});
+			}
 		});
 		b.forEach(onAdd);
-		b.on('add', onAdd);
-		b.on('delete', bDel = function (value) {
-			if (!a.has(value)) result._delete(value);
+		b.on('change', bListener = function (type, value) {
+			if (type === 'add') {
+				result._add(value);
+			} else if (type === 'delete') {
+				if (!a.has(value)) result._delete(value);
+			} else if (type === 'clear') {
+				result.forEach(function (value) {
+					if (a.has(value) || b.has(value)) return;
+					result._delete(value);
+				});
+			}
 		});
-		b.on('clear', onClear);
 		resolved = [];
 		if (a.__or__) push.apply(resolved, a.__or__);
 		else resolved.push(a);
@@ -109,12 +125,8 @@ module.exports = memoize(function (ObservableSet) {
 			}),
 			_dispose: d(function () {
 				disposed = true;
-				a.off('add', onAdd);
-				a.off('delete', aDel);
-				a.off('clear', onClear);
-				b.off('add', onAdd);
-				b.off('delete', bDel);
-				b.off('clear', onClear);
+				a.off('change', aListener);
+				b.off('change', bListener);
 				delete this.__or__;
 				if (this.__innerDeps__) {
 					this.__innerDeps__.forEach(invokeUnref);
@@ -126,19 +138,29 @@ module.exports = memoize(function (ObservableSet) {
 	}, { length: 1, refCounter: true, dispose: invokeDispose });
 
 	not = memPrimitive(function (id, a, b) {
-		var result = new ReadOnly(), aAdd, aDel, aClear, bDel, bClear, disposed;
+		var result = new ReadOnly(), aAdd, aListener, bListener, disposed;
 		a.forEach(aAdd = function (value) {
 			if (!b.has(value)) result._add(value);
 		});
-		a.on('add', aAdd);
-		a.on('delete', aDel = function (value) { result._delete(value); });
-		a.on('clear', aClear = function () { result._clear(); });
-		b.forEach(aDel);
-		b.on('add', aDel);
-		b.on('delete', bDel = function (value) {
-			if (a.has(value)) result._add(value);
+		a.on('change', aListener = function (type, value) {
+			if (type === 'add') {
+				if (!b.has(value)) result._add(value);
+			} else if (type === 'delete') {
+				result._delete(value);
+			} else if (type === 'clear') {
+				result._clear();
+			}
 		});
-		b.on('clear', bClear = function () { a.forEach(aAdd); });
+		b.forEach(function (value) { result._delete(value); });
+		b.on('change', bListener = function (type, value) {
+			if (type === 'add') {
+				result._delete(value);
+			} else if (type === 'delete') {
+				if (a.has(value)) result._add(value);
+			} else if (type === 'clear') {
+				a.forEach(aAdd);
+			}
+		});
 		defineProperties(result, {
 			unref: d(function () {
 				if (disposed) return;
@@ -146,12 +168,8 @@ module.exports = memoize(function (ObservableSet) {
 			}),
 			_dispose: d(function () {
 				disposed = true;
-				a.off('add', aAdd);
-				a.off('delete', aDel);
-				a.off('clear', aClear);
-				b.off('add', aDel);
-				b.off('delete', bDel);
-				b.off('clear', bClear);
+				a.off('change', aListener);
+				b.off('change', bListener);
 				if (this.__innerDeps__) {
 					this.__innerDeps__.forEach(invokeUnref);
 					delete this.__innerDeps__;

@@ -26,46 +26,57 @@ module.exports = memoize(function (ObservableSet) {
 	validFunction(ObservableSet);
 	defineProperties(ObservableSet.prototype, memMethods({
 		toArray: d(function (compareFn) {
-			var result, setData, disposed, addListener, delListener, clearListener;
+			var result, setData, disposed, listener, delListener, clearListener;
 			(value(this) && ((compareFn === undefined) || callable(compareFn)));
 			if (this.__setData__) {
 				setData = this.__setData__;
 				result = ReadOnly.from(setData);
-				this.on('_add', addListener = function (index, value) {
+				this.on('_add', listener = function (index, value) {
 					if (compareFn) {
 						push.call(result, value);
 						sort.call(result, compareFn);
+						result.emit('change', 'splice',
+							[setData.eIndexOf.call(result, value), 0, value], []);
 					} else if (result.length === index) {
 						push.call(result, value);
+						result.emit('change', 'push', [value]);
 					} else {
-						splice.call(result, index, 0, value);
+						result.emit('change', 'splice', [index, 0, value],
+							splice.call(result, index, 0, value));
 					}
-					result.emit('change');
 				});
 				this.on('_delete', delListener = function (index, value) {
-					if (compareFn) {
-						splice.call(result, setData.eIndexOf.call(result, value), 1);
-					} else {
-						splice.call(result, index, 1);
-					}
+					if (compareFn) index = setData.eIndexOf.call(result, value);
+					result.emit('change', 'splice', [index, 1],
+						splice.call(result, index, 1));
+				});
+				this.on('_clear', clearListener = function (value) {
+					clear.call(result);
 					result.emit('change');
 				});
 			} else {
 				result = ReadOnly.from(this);
-				this.on('add', addListener = function (value) {
-					push.call(result, value);
-					if (compareFn) sort.call(result, compareFn);
-					result.emit('change');
-				});
-				this.on('delete', delListener = function (value) {
-					splice.call(result, eIndexOf.call(result, value), 1);
-					result.emit('change');
+				this.on('change', listener = function (type, value) {
+					var index;
+					if (type === 'add') {
+						push.call(result, value);
+						if (compareFn) {
+							sort.call(result, compareFn);
+							result.emit('change', 'splice',
+								[setData.eIndexOf.call(result, value), 0, value], []);
+						} else {
+							result.emit('change', 'push', [value]);
+						}
+					} else if (type === 'delete') {
+						index = eIndexOf.call(result, value);
+						splice.call(result, index, 1);
+						result.emit('change', 'splice', [index, 1]);
+					} else if (type === 'clear') {
+						clear.call(result);
+						result.emit('change');
+					}
 				});
 			}
-			this.on('clear', clearListener = function (value) {
-				clear.call(result);
-				result.emit('change');
-			});
 			if (compareFn) sort.call(result, compareFn);
 			defineProperties(result, {
 				refresh: d(function () {
@@ -81,13 +92,12 @@ module.exports = memoize(function (ObservableSet) {
 				}.bind(this)),
 				_dispose: d(function () {
 					if (setData) {
-						this.off('_add', addListener);
+						this.off('_add', listener);
 						this.off('_delete', delListener);
+						this.off('_clear', clearListener);
 					} else {
-						this.off('add', addListener);
-						this.off('delete', delListener);
+						this.off('change', listener);
 					}
-					this.off('clear', clearListener);
 					disposed = true;
 				}.bind(this))
 			});

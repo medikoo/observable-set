@@ -8,7 +8,7 @@ module.exports = exports = function (t, a) {
 
 exports.tests = function (ObservableSet, a) {
 	var set1, set2, set3, set, setB
-	  , adds = 0, deletes = 0, clears = 0, onAdd, onDel, onClear;
+	  , adds = 0, deletes = 0, clears = 0, listener;
 
 	set1 = new ObservableSet(['zero', 'raz', 'dwa', 'trzy']);
 	set2 = new ObservableSet(['zero', 'raz', 'cztery', 'sześć']);
@@ -18,9 +18,11 @@ exports.tests = function (ObservableSet, a) {
 	a.h1("And");
 	set = set1.and(set2);
 	a.deep(toArray(set.values()), ['zero', 'raz']);
-	set.on('add', onAdd = function () { ++adds; });
-	set.on('delete', onDel = function () { ++deletes; });
-	set.on('clear', onClear = function () { ++clears; });
+	set.on('change', listener = function (type) {
+		if (type === 'add') ++adds;
+		else if (type === 'delete') ++deletes;
+		else ++clears;
+	});
 
 	a.h2("Memoize");
 	a(set, set1.and(set2));
@@ -94,9 +96,7 @@ exports.tests = function (ObservableSet, a) {
 	a.deep([adds, deletes, clears], [2, 2, 1], "Event");
 
 	// Reset
-	set.off('add', onAdd);
-	set.off('delete', onDel);
-	set.off('clear', onClear);
+	set.off('change', listener);
 	set1 = new ObservableSet(['raz', 'dwa']);
 	set2 = new ObservableSet(['raz', 'trzy']);
 	set3 = new ObservableSet(['trzy', 'cztery']);
@@ -108,9 +108,7 @@ exports.tests = function (ObservableSet, a) {
 	a.h1("Or");
 	set = set1.or(set2);
 	a.deep(toArray(set.values()), ['raz', 'dwa', 'trzy']);
-	set.on('add', onAdd = function () { ++adds; });
-	set.on('delete', onDel = function () { ++deletes; });
-	set.on('clear', onClear = function () { ++clears; });
+	set.on('change', listener);
 
 	a.h2("Memoize");
 	a(set, set1.or(set2));
@@ -184,9 +182,7 @@ exports.tests = function (ObservableSet, a) {
 	a.deep([adds, deletes, clears], [2, 5, 0], "Event");
 
 	// Reset
-	set.off('add', onAdd);
-	set.off('delete', onDel);
-	set.off('clear', onClear);
+	set.off('change', listener);
 	set1 = new ObservableSet(['raz', 'dwa']);
 	set2 = new ObservableSet(['raz', 'trzy']);
 	set3 = new ObservableSet(['trzy', 'dwa']);
@@ -198,9 +194,7 @@ exports.tests = function (ObservableSet, a) {
 	a.h1("Not");
 	set = set1.not(set2);
 	a.deep(toArray(set.values()), ['dwa']);
-	set.on('add', onAdd = function () { ++adds; });
-	set.on('delete', onDel = function () { ++deletes; });
-	set.on('clear', onClear = function () { ++clears; });
+	set.on('change', listener);
 
 	a.h2("Memoize");
 	a(set, set1.not(set2));

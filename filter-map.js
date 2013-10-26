@@ -22,20 +22,23 @@ module.exports = memoize(function (ObservableSet) {
 
 	defineProperties(ObservableSet.prototype, memMethods({
 		filter: d(function (callbackFn/*, thisArg*/) {
-			var result, thisArg, cb, disposed, addListener, delListener
-			  , clearListener;
+			var result, thisArg, cb, disposed, listener;
 			(value(this) && callable(callbackFn));
 			thisArg = arguments[1];
 			cb = memoize(bind.call(callbackFn, thisArg), { length: 1 });
 			result = new ReadOnly();
-			this.on('add', addListener = function (value) {
+			this.on('change', listener = function (type, value) {
+				if (type === 'add') {
+					if (cb(value)) result._add(value);
+				} else if (type === 'delete') {
+					result._delete(value);
+				} else if (type === 'clear') {
+					result._clear();
+				}
+			});
+			this.forEach(function (value) {
 				if (cb(value)) result._add(value);
 			});
-			this.on('delete', delListener = function (value) {
-				result._delete(value);
-			});
-			this.on('clear', clearListener = function (value) { result._clear(); });
-			this.forEach(addListener);
 			defineProperties(result, {
 				refresh: d(function (value) {
 					if (!this.has(value)) return;
@@ -55,9 +58,7 @@ module.exports = memoize(function (ObservableSet) {
 					this.filter.clearRef(callbackFn, thisArg);
 				}.bind(this)),
 				_dispose: d(function () {
-					this.off('add', addListener);
-					this.off('delete', delListener);
-					this.off('clear', clearListener);
+					this.off('change', listener);
 					disposed = true;
 				}.bind(this))
 			});
@@ -65,8 +66,7 @@ module.exports = memoize(function (ObservableSet) {
 		}, { length: 2, refCounter: true, dispose: invokeDispose }),
 
 		map: d(function (callbackFn/*, thisArg*/) {
-			var result, thisArg, cb, disposed, addListener, delListener
-			  , registry, clearListener, inClear;
+			var result, thisArg, cb, disposed, listener, registry, inClear;
 			(value(this) && callable(callbackFn));
 			thisArg = arguments[1];
 			cb = memoize(bind.call(callbackFn, thisArg), { length: 1 });
@@ -75,19 +75,19 @@ module.exports = memoize(function (ObservableSet) {
 				result._delete(val);
 			} });
 			result = new ReadOnly();
-			this.on('add', addListener = function (value) {
-				result._add(registry(cb(value)));
+			this.on('change', listener = function (type, value) {
+				if (type === 'add') {
+					result._add(registry(cb(value)));
+				} else if (type === 'delete') {
+					registry.clearRef(cb(value));
+				} else if (type === 'clear') {
+					inClear = true;
+					registry.clearAll();
+					inClear = false;
+					result._clear();
+				}
 			});
-			this.on('delete', delListener = function (value) {
-				registry.clearRef(cb(value));
-			});
-			this.on('clear', clearListener = function (value) {
-				inClear = true;
-				registry.clearAll();
-				inClear = false;
-				result._clear();
-			});
-			this.forEach(addListener);
+			this.forEach(function (value) { result._add(registry(cb(value))); });
 			defineProperties(result, {
 				refresh: d(function (value) {
 					var pre, post;
@@ -107,9 +107,7 @@ module.exports = memoize(function (ObservableSet) {
 					this.map.clearRef(callbackFn, thisArg);
 				}.bind(this)),
 				_dispose: d(function () {
-					this.off('add', addListener);
-					this.off('delete', delListener);
-					this.off('clear', clearListener);
+					this.off('change', listener);
 					disposed = true;
 				}.bind(this))
 			});

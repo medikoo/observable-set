@@ -16,9 +16,11 @@ module.exports = function (ObservableSet, a) {
 
 	a.deep(toArray(set.values()), arr, "Constructor");
 
-	set.on('add', function () { ++adds; });
-	set.on('delete', function () { ++deletes; });
-	set.on('clear', function () { ++clears; });
+	set.on('change', function (type) {
+		if (type === 'add') ++adds;
+		else if (type === 'delete') ++deletes;
+		else ++clears;
+	});
 
 	set.delete('bar');
 	remove.call(arr, 'bar');

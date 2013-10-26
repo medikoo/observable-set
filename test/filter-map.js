@@ -8,7 +8,7 @@ module.exports = exports = function (t, a) {
 
 exports.tests = function (ObservableSet, a) {
 	var set, x = {}, y, z, w, u, set2, fn
-	  , adds = 0, deletes = 0, clears = 0, onAdd, onDel, onClear;
+	  , adds = 0, deletes = 0, clears = 0, listener;
 
 	// Filter
 	a.h1("Filter");
@@ -20,9 +20,11 @@ exports.tests = function (ObservableSet, a) {
 	set2 = set.filter(fn = function (val) { return val.val % 2; });
 	a.deep(toArray(set2.values()), [y]);
 	a(set2, set.filter(fn), "Memoize");
-	set2.on('add', onAdd = function () { ++adds; });
-	set2.on('delete', onDel = function () { ++deletes; });
-	set2.on('clear', onClear = function () { ++clears; });
+	set2.on('change', listener = function (type) {
+		if (type === 'add') ++adds;
+		else if (type === 'delete') ++deletes;
+		else ++clears;
+	});
 
 	a.h2("Add matching");
 	w = { val: 33 };
@@ -72,9 +74,7 @@ exports.tests = function (ObservableSet, a) {
 	a.deep(toArray(set2.values()), []);
 	a.deep([adds, deletes, clears], [2, 2, 1], "Event");
 
-	set2.off('add', onAdd);
-	set2.off('delete', onDel);
-	set2.off('clear', onClear);
+	set2.off('change', listener);
 
 	// Map
 	a.h1("Map");
@@ -89,9 +89,7 @@ exports.tests = function (ObservableSet, a) {
 	set2 = set.map(fn = function (val) { return val.val * 2; });
 	a.deep(toArray(set2.values()), [24, 86, 108]);
 	a(set2, set.map(fn), "Memoize");
-	set2.on('add', onAdd = function () { ++adds; });
-	set2.on('delete', onDel = function () { ++deletes; });
-	set2.on('clear', onClear = function () { ++clears; });
+	set2.on('change', listener);
 
 	a.h2("Add");
 	w = { val: 33 };
