@@ -6,9 +6,6 @@ var validFunction  = require('es5-ext/function/valid-function')
   , ee             = require('event-emitter')
   , memoize        = require('memoizee/lib/regular');
 
-require('memoizee/lib/ext/ref-counter');
-require('memoizee/lib/ext/dispose');
-
 module.exports = memoize(function (Constructor) {
 	var Observable, add, clear, del;
 
