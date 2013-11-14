@@ -1,6 +1,7 @@
 'use strict';
 
-var i              = require('es5-ext/function/i')
+var eIndexOf       = require('es5-ext/array/#/e-index-of')
+  , i              = require('es5-ext/function/i')
   , invoke         = require('es5-ext/function/invoke')
   , validFunction  = require('es5-ext/function/valid-function')
   , callable       = require('es5-ext/object/valid-callable')
@@ -28,15 +29,22 @@ module.exports = memoize(function (ObservableSet) {
 			cb = memoize(bind.call(callbackFn, thisArg), { length: 1 });
 			result = new ReadOnly();
 			this.on('change', listener = function (event) {
-				var type = event.type;
+				var type = event.type, changed;
 				if (type === 'add') {
 					if (cb(event.value)) result._add(event.value);
 				} else if (type === 'delete') {
 					result._delete(event.value);
 				} else if (type === 'clear') {
 					result._clear();
+				} else {
+					result.forEach(function (value) {
+						if (this.has(value)) return;
+						result.$delete(value);
+						changed = true;
+					}, this);
+					if (changed) result.emit('change', {});
 				}
-			});
+			}.bind(this));
 			this.forEach(function (value) {
 				if (cb(value)) result._add(value);
 			});
@@ -77,7 +85,7 @@ module.exports = memoize(function (ObservableSet) {
 			} });
 			result = new ReadOnly();
 			this.on('change', listener = function (event) {
-				var type = event.type;
+				var type = event.type, changed, valid;
 				if (type === 'add') {
 					result._add(registry(cb(event.value)));
 				} else if (type === 'delete') {
@@ -87,8 +95,26 @@ module.exports = memoize(function (ObservableSet) {
 					registry.clearAll();
 					inClear = false;
 					result._clear();
+				} else {
+					inClear = true;
+					registry.clearAll();
+					inClear = false;
+					valid = [];
+					this.forEach(function (value) {
+						value = registry(cb(event.value));
+						valid.push(value);
+						if (result.has(value)) return;
+						result.$add(value);
+						changed = true;
+					});
+					result.forEach(function (value) {
+						if (eIndexOf.call(valid, value)) return;
+						result.$delete(value);
+						changed = true;
+					});
+					if (changed) result.emit('change', {});
 				}
-			});
+			}.bind(this));
 			this.forEach(function (value) { result._add(registry(cb(value))); });
 			defineProperties(result, {
 				refresh: d(function (value) {
