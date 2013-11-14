@@ -30,16 +30,19 @@ module.exports = memoize(function (Constructor) {
 			this.emit('change', { type: 'add', value: value });
 			return this;
 		}),
+		$add: d(add),
 		clear: d(function () {
 			if (!this.size) return;
 			clear.call(this);
 			this.emit('change', { type: 'clear' });
 		}),
+		$clear: d(clear),
 		delete: d(function (value) {
 			if (!del.call(this, value)) return false;
 			this.emit('change', { type: 'delete', value: value });
 			return true;
-		})
+		}),
+		$delete: d(del)
 	}));
 
 	return Observable;
