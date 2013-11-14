@@ -20,9 +20,9 @@ exports.tests = function (ObservableSet, a) {
 	set2 = set.filter(fn = function (val) { return val.val % 2; });
 	a.deep(toArray(set2.values()), [y]);
 	a(set2, set.filter(fn), "Memoize");
-	set2.on('change', listener = function (type) {
-		if (type === 'add') ++adds;
-		else if (type === 'delete') ++deletes;
+	set2.on('change', listener = function (event) {
+		if (event.type === 'add') ++adds;
+		else if (event.type === 'delete') ++deletes;
 		else ++clears;
 	});
 

@@ -35,45 +35,54 @@ module.exports = memoize(function (ObservableSet) {
 					if (compareFn) {
 						push.call(result, value);
 						sort.call(result, compareFn);
-						result.emit('change', 'splice',
-							[setData.eIndexOf.call(result, value), 0, value], []);
+						result.emit('change', {
+							type: 'splice',
+							arguments: [setData.eIndexOf.call(result, value), 0, value],
+							removed: []
+						});
 					} else if (result.length === index) {
 						push.call(result, value);
-						result.emit('change', 'push', [value]);
+						result.emit('change', { type: 'set', index: index });
 					} else {
-						result.emit('change', 'splice', [index, 0, value],
-							splice.call(result, index, 0, value));
+						result.emit('change', {
+							type: 'splice',
+							arguments: [index, 0, value],
+							removed: splice.call(result, index, 0, value)
+						});
 					}
 				});
 				this.on('_delete', delListener = function (index, value) {
 					if (compareFn) index = setData.eIndexOf.call(result, value);
-					result.emit('change', 'splice', [index, 1],
-						splice.call(result, index, 1));
+					result.emit('change', { type: 'splice', arguments: [index, 1],
+						removed: splice.call(result, index, 1) });
 				});
 				this.on('_clear', clearListener = function (value) {
 					clear.call(result);
-					result.emit('change');
+					result.emit('change', { type: 'clear' });
 				});
 			} else {
 				result = ReadOnly.from(this);
-				this.on('change', listener = function (type, value) {
-					var index;
+				this.on('change', listener = function (event) {
+					var index, type = event.type;
 					if (type === 'add') {
-						push.call(result, value);
+						index = push.call(result, event.value);
 						if (compareFn) {
 							sort.call(result, compareFn);
-							result.emit('change', 'splice',
-								[setData.eIndexOf.call(result, value), 0, value], []);
+							result.emit('change', {
+								type: 'splice',
+								arguments: [setData.eIndexOf.call(result, value), 0, value],
+								removed: []
+							});
 						} else {
-							result.emit('change', 'push', [value]);
+							result.emit('change', { type: 'set', index: index - 1 });
 						}
 					} else if (type === 'delete') {
-						index = eIndexOf.call(result, value);
-						splice.call(result, index, 1);
-						result.emit('change', 'splice', [index, 1]);
+						index = eIndexOf.call(result, event.value);
+						result.emit('change', { type: 'splice', arguments: [index, 1],
+							removed: splice.call(result, index, 1) });
 					} else if (type === 'clear') {
 						clear.call(result);
-						result.emit('change');
+						result.emit('change', { type: 'clear' });
 					}
 				});
 			}
@@ -84,7 +93,7 @@ module.exports = memoize(function (ObservableSet) {
 					if (!compareFn || (this.size <= 1)) return;
 					tmp = aFrom(result);
 					sort.call(result, compareFn);
-					if (!isCopy.call(result, tmp)) result.emit('change');
+					if (!isCopy.call(result, tmp)) result.emit('change', {});
 				}.bind(this)),
 				unref: d(function () {
 					if (disposed) return;

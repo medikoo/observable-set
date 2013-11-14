@@ -35,11 +35,12 @@ module.exports = memoize(function (ObservableSet) {
 		a.forEach(function (value) {
 			if (b.has(value)) result._add(value);
 		});
-		a.on('change', aListener = function (type, value) {
+		a.on('change', aListener = function (event) {
+			var type = event.type;
 			if (type === 'add') {
-				if (b.has(value)) result._add(value);
+				if (b.has(event.value)) result._add(event.value);
 			} else if (type === 'delete') {
-				result._delete(value);
+				result._delete(event.value);
 			} else if (type === 'clear') {
 				result._clear();
 			}
@@ -47,11 +48,12 @@ module.exports = memoize(function (ObservableSet) {
 		b.forEach(function (value) {
 			if (a.has(value)) result._add(value);
 		});
-		b.on('change', bListener = function (type, value) {
+		b.on('change', bListener = function (event) {
+			var type = event.type;
 			if (type === 'add') {
-				if (a.has(value)) result._add(value);
+				if (a.has(event.value)) result._add(event.value);
 			} else if (type === 'delete') {
-				result._delete(value);
+				result._delete(event.value);
 			} else if (type === 'clear') {
 				result._clear();
 			}
@@ -86,11 +88,12 @@ module.exports = memoize(function (ObservableSet) {
 		var result = new ReadOnly(), onAdd, aListener, bListener, disposed
 		  , resolved;
 		a.forEach(onAdd = function (value) { result._add(value); });
-		a.on('change', aListener = function (type, value) {
+		a.on('change', aListener = function (event) {
+			var type = event.type;
 			if (type === 'add') {
-				result._add(value);
+				result._add(event.value);
 			} else if (type === 'delete') {
-				if (!b.has(value)) result._delete(value);
+				if (!b.has(event.value)) result._delete(event.value);
 			} else if (type === 'clear') {
 				result.forEach(function (value) {
 					if (a.has(value) || b.has(value)) return;
@@ -99,11 +102,12 @@ module.exports = memoize(function (ObservableSet) {
 			}
 		});
 		b.forEach(onAdd);
-		b.on('change', bListener = function (type, value) {
+		b.on('change', bListener = function (event) {
+			var type = event.type;
 			if (type === 'add') {
-				result._add(value);
+				result._add(event.value);
 			} else if (type === 'delete') {
-				if (!a.has(value)) result._delete(value);
+				if (!a.has(event.value)) result._delete(event.value);
 			} else if (type === 'clear') {
 				result.forEach(function (value) {
 					if (a.has(value) || b.has(value)) return;
@@ -142,21 +146,23 @@ module.exports = memoize(function (ObservableSet) {
 		a.forEach(aAdd = function (value) {
 			if (!b.has(value)) result._add(value);
 		});
-		a.on('change', aListener = function (type, value) {
+		a.on('change', aListener = function (event) {
+			var type = event.type;
 			if (type === 'add') {
-				if (!b.has(value)) result._add(value);
+				if (!b.has(event.value)) result._add(event.value);
 			} else if (type === 'delete') {
-				result._delete(value);
+				result._delete(event.value);
 			} else if (type === 'clear') {
 				result._clear();
 			}
 		});
 		b.forEach(function (value) { result._delete(value); });
-		b.on('change', bListener = function (type, value) {
+		b.on('change', bListener = function (event) {
+			var type = event.type;
 			if (type === 'add') {
-				result._delete(value);
+				result._delete(event.value);
 			} else if (type === 'delete') {
-				if (a.has(value)) result._add(value);
+				if (a.has(event.value)) result._add(event.value);
 			} else if (type === 'clear') {
 				a.forEach(aAdd);
 			}

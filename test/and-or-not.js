@@ -18,9 +18,9 @@ exports.tests = function (ObservableSet, a) {
 	a.h1("And");
 	set = set1.and(set2);
 	a.deep(toArray(set.values()), ['zero', 'raz']);
-	set.on('change', listener = function (type) {
-		if (type === 'add') ++adds;
-		else if (type === 'delete') ++deletes;
+	set.on('change', listener = function (event) {
+		if (event.type === 'add') ++adds;
+		else if (event.type === 'delete') ++deletes;
 		else ++clears;
 	});
 

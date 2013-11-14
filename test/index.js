@@ -16,9 +16,9 @@ module.exports = function (ObservableSet, a) {
 
 	a.deep(toArray(set.values()), arr, "Constructor");
 
-	set.on('change', function (type) {
-		if (type === 'add') ++adds;
-		else if (type === 'delete') ++deletes;
+	set.on('change', function (event) {
+		if (event.type === 'add') ++adds;
+		else if (event.type === 'delete') ++deletes;
 		else ++clears;
 	});
 

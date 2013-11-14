@@ -27,11 +27,12 @@ module.exports = memoize(function (ObservableSet) {
 			thisArg = arguments[1];
 			cb = memoize(bind.call(callbackFn, thisArg), { length: 1 });
 			result = new ReadOnly();
-			this.on('change', listener = function (type, value) {
+			this.on('change', listener = function (event) {
+				var type = event.type;
 				if (type === 'add') {
-					if (cb(value)) result._add(value);
+					if (cb(event.value)) result._add(event.value);
 				} else if (type === 'delete') {
-					result._delete(value);
+					result._delete(event.value);
 				} else if (type === 'clear') {
 					result._clear();
 				}
@@ -75,11 +76,12 @@ module.exports = memoize(function (ObservableSet) {
 				result._delete(val);
 			} });
 			result = new ReadOnly();
-			this.on('change', listener = function (type, value) {
+			this.on('change', listener = function (event) {
+				var type = event.type;
 				if (type === 'add') {
-					result._add(registry(cb(value)));
+					result._add(registry(cb(event.value)));
 				} else if (type === 'delete') {
-					registry.clearRef(cb(value));
+					registry.clearRef(cb(event.value));
 				} else if (type === 'clear') {
 					inClear = true;
 					registry.clearAll();

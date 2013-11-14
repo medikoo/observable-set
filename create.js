@@ -27,17 +27,17 @@ module.exports = memoize(function (Constructor) {
 		add: d(function (value) {
 			if (this.has(value)) return this;
 			add.call(this, value);
-			this.emit('change', 'add', value);
+			this.emit('change', { type: 'add', value: value });
 			return this;
 		}),
 		clear: d(function () {
 			if (!this.size) return;
 			clear.call(this);
-			this.emit('change', 'clear');
+			this.emit('change', { type: 'clear' });
 		}),
 		delete: d(function (value) {
 			if (!del.call(this, value)) return false;
-			this.emit('change', 'delete', value);
+			this.emit('change', { type: 'delete', value: value });
 			return true;
 		})
 	}));
