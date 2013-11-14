@@ -8,7 +8,7 @@ module.exports = exports = function (t, a) {
 
 exports.tests = function (ObservableSet, a) {
 	var set1, set2, set3, set, setB
-	  , adds = 0, deletes = 0, clears = 0, listener;
+	  , adds = 0, deletes = 0, clears = 0, elses = 0, listener;
 
 	set1 = new ObservableSet(['zero', 'raz', 'dwa', 'trzy']);
 	set2 = new ObservableSet(['zero', 'raz', 'cztery', 'sześć']);
@@ -21,7 +21,8 @@ exports.tests = function (ObservableSet, a) {
 	set.on('change', listener = function (event) {
 		if (event.type === 'add') ++adds;
 		else if (event.type === 'delete') ++deletes;
-		else ++clears;
+		else if (event.type === 'clear') ++clears;
+		else ++elses;
 	});
 
 	a.h2("Memoize");
@@ -32,45 +33,45 @@ exports.tests = function (ObservableSet, a) {
 	a.h3("Add matching");
 	set1.add('sześć');
 	a.deep(toArray(set.values()), ['zero', 'raz', 'sześć']);
-	a.deep([adds, deletes, clears], [1, 0, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [1, 0, 0, 0], "Event");
 
 	a.h3("Add not matching");
 	set1.add('siedem');
 	a.deep(toArray(set.values()), ['zero', 'raz', 'sześć']);
-	a.deep([adds, deletes, clears], [1, 0, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [1, 0, 0, 0], "Event");
 
 	a.h2("B");
 	a.h3("Add matching");
 	set2.add('siedem');
 	a.deep(toArray(set.values()), ['zero', 'raz', 'sześć', 'siedem']);
-	a.deep([adds, deletes, clears], [2, 0, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [2, 0, 0, 0], "Event");
 
 	a.h3("Add not matching");
 	set2.add('osiem');
 	a.deep(toArray(set.values()), ['zero', 'raz', 'sześć', 'siedem']);
-	a.deep([adds, deletes, clears], [2, 0, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [2, 0, 0, 0], "Event");
 
 	a.h2("A");
 	a.h3("Delete matching");
 	set1.delete('raz');
 	a.deep(toArray(set.values()), ['zero', 'sześć', 'siedem']);
-	a.deep([adds, deletes, clears], [2, 1, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [2, 1, 0, 0], "Event");
 
 	a.h3("Delete not matching");
 	set1.delete('trzy');
 	a.deep(toArray(set.values()), ['zero', 'sześć', 'siedem']);
-	a.deep([adds, deletes, clears], [2, 1, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [2, 1, 0, 0], "Event");
 
 	a.h2("B");
 	a.h3("Delete matching");
 	set2.delete('sześć');
 	a.deep(toArray(set.values()), ['zero', 'siedem']);
-	a.deep([adds, deletes, clears], [2, 2, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [2, 2, 0, 0], "Event");
 
 	a.h3("Delete not matching");
 	set2.delete('cztery');
 	a.deep(toArray(set.values()), ['zero', 'siedem']);
-	a.deep([adds, deletes, clears], [2, 2, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [2, 2, 0, 0], "Event");
 
 	a.h2("3");
 	setB = set.and(set3);
@@ -87,13 +88,13 @@ exports.tests = function (ObservableSet, a) {
 	set1.clear();
 	a.deep(toArray(set.values()), []);
 	a.deep(toArray(setB.values()), [], "3");
-	a.deep([adds, deletes, clears], [2, 2, 1], "Event");
+	a.deep([adds, deletes, clears, elses], [2, 2, 1, 0], "Event");
 
 	a.h2("B");
 	a.h2("Clear");
 	set2.clear();
 	a.deep(toArray(set.values()), []);
-	a.deep([adds, deletes, clears], [2, 2, 1], "Event");
+	a.deep([adds, deletes, clears, elses], [2, 2, 1, 0], "Event");
 
 	// Reset
 	set.off('change', listener);
@@ -103,6 +104,7 @@ exports.tests = function (ObservableSet, a) {
 	adds = 0;
 	deletes = 0;
 	clears = 0;
+	elses = 0;
 
 	// Or
 	a.h1("Or");
@@ -118,45 +120,45 @@ exports.tests = function (ObservableSet, a) {
 	a.h3("Add");
 	set1.add('cztery');
 	a.deep(toArray(set.values()), ['raz', 'dwa', 'trzy', 'cztery']);
-	a.deep([adds, deletes, clears], [1, 0, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [1, 0, 0, 0], "Event");
 
 	a.h3("Add existing");
 	set1.add('trzy');
 	a.deep(toArray(set.values()), ['raz', 'dwa', 'trzy', 'cztery']);
-	a.deep([adds, deletes, clears], [1, 0, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [1, 0, 0, 0], "Event");
 
 	a.h2("B");
 	a.h3("Add");
 	set2.add('siedem');
 	a.deep(toArray(set.values()), ['raz', 'dwa', 'trzy', 'cztery', 'siedem']);
-	a.deep([adds, deletes, clears], [2, 0, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [2, 0, 0, 0], "Event");
 
 	a.h3("Add existing");
 	set2.add('dwa');
 	a.deep(toArray(set.values()), ['raz', 'dwa', 'trzy', 'cztery', 'siedem']);
-	a.deep([adds, deletes, clears], [2, 0, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [2, 0, 0, 0], "Event");
 
 	a.h2("A");
 	a.h3("Delete");
 	set1.delete('cztery');
 	a.deep(toArray(set.values()), ['raz', 'dwa', 'trzy', 'siedem']);
-	a.deep([adds, deletes, clears], [2, 1, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [2, 1, 0, 0], "Event");
 
 	a.h3("Delete existing");
 	set1.delete('trzy');
 	a.deep(toArray(set.values()), ['raz', 'dwa', 'trzy', 'siedem']);
-	a.deep([adds, deletes, clears], [2, 1, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [2, 1, 0, 0], "Event");
 
 	a.h2("B");
 	a.h3("Delete");
 	set2.delete('siedem');
 	a.deep(toArray(set.values()), ['raz', 'dwa', 'trzy']);
-	a.deep([adds, deletes, clears], [2, 2, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [2, 2, 0, 0], "Event");
 
 	a.h3("Delete existing");
 	set2.delete('dwa');
 	a.deep(toArray(set.values()), ['raz', 'dwa', 'trzy']);
-	a.deep([adds, deletes, clears], [2, 2, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [2, 2, 0, 0], "Event");
 
 	a.h2("3");
 	setB = set.or(set3);
@@ -173,13 +175,13 @@ exports.tests = function (ObservableSet, a) {
 	a.h3("Clear");
 	set1.clear();
 	a.deep(toArray(set.values()), ['raz', 'trzy']);
-	a.deep([adds, deletes, clears], [2, 3, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [2, 2, 0, 1], "Event");
 
 	a.h2("B");
-	a.h2("Clear");
+	a.h3("Clear");
 	set2.clear();
 	a.deep(toArray(set.values()), []);
-	a.deep([adds, deletes, clears], [2, 5, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [2, 2, 0, 2], "Event");
 
 	// Reset
 	set.off('change', listener);
@@ -189,6 +191,7 @@ exports.tests = function (ObservableSet, a) {
 	adds = 0;
 	deletes = 0;
 	clears = 0;
+	elses = 0;
 
 	// Not
 	a.h1("Not");
@@ -203,45 +206,45 @@ exports.tests = function (ObservableSet, a) {
 	a.h3("Add matching");
 	set1.add('trzy');
 	a.deep(toArray(set.values()), ['dwa']);
-	a.deep([adds, deletes, clears], [0, 0, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [0, 0, 0, 0], "Event");
 
 	a.h3("Add not matching");
 	set1.add('cztery');
 	a.deep(toArray(set.values()), ['dwa', 'cztery']);
-	a.deep([adds, deletes, clears], [1, 0, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [1, 0, 0, 0], "Event");
 
 	a.h2("B");
 	a.h3("Add matching");
 	set2.add('siedem');
 	a.deep(toArray(set.values()), ['dwa', 'cztery']);
-	a.deep([adds, deletes, clears], [1, 0, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [1, 0, 0, 0], "Event");
 
 	a.h3("Add not matching");
 	set2.add('dwa');
 	a.deep(toArray(set.values()), ['cztery']);
-	a.deep([adds, deletes, clears], [1, 1, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [1, 1, 0, 0], "Event");
 
 	a.h2("A");
 	a.h3("Delete matching");
 	set1.delete('cztery');
 	a.deep(toArray(set.values()), []);
-	a.deep([adds, deletes, clears], [1, 2, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [1, 2, 0, 0], "Event");
 
 	a.h3("Delete not matching");
 	set1.delete('trzy');
 	a.deep(toArray(set.values()), []);
-	a.deep([adds, deletes, clears], [1, 2, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [1, 2, 0, 0], "Event");
 
 	a.h2("B");
 	a.h3("Delete matching");
 	set2.delete('dwa');
 	a.deep(toArray(set.values()), ['dwa']);
-	a.deep([adds, deletes, clears], [2, 2, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [2, 2, 0, 0], "Event");
 
 	a.h3("Delete not matching");
 	set2.delete('siedem');
 	a.deep(toArray(set.values()), ['dwa']);
-	a.deep([adds, deletes, clears], [2, 2, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [2, 2, 0, 0], "Event");
 
 	a.h2("3");
 	setB = set1.not(set2, set3);
@@ -259,11 +262,11 @@ exports.tests = function (ObservableSet, a) {
 	a.h3("Clear");
 	set2.clear();
 	a.deep(toArray(set.values()), ['dwa', 'raz']);
-	a.deep([adds, deletes, clears], [3, 2, 0], "Event");
+	a.deep([adds, deletes, clears, elses], [2, 2, 0, 1], "Event");
 
 	a.h2("B");
 	a.h2("Clear");
 	set1.clear();
 	a.deep(toArray(set.values()), []);
-	a.deep([adds, deletes, clears], [3, 2, 1], "Event");
+	a.deep([adds, deletes, clears, elses], [2, 2, 1, 1], "Event");
 };

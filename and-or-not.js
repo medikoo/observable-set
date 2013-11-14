@@ -36,26 +36,50 @@ module.exports = memoize(function (ObservableSet) {
 			if (b.has(value)) result._add(value);
 		});
 		a.on('change', aListener = function (event) {
-			var type = event.type;
+			var type = event.type, changed;
 			if (type === 'add') {
 				if (b.has(event.value)) result._add(event.value);
 			} else if (type === 'delete') {
 				result._delete(event.value);
 			} else if (type === 'clear') {
 				result._clear();
+			} else {
+				result.forEach(function (value) {
+					if (a.has(value)) return;
+					result.$delete(value);
+					changed = true;
+				});
+				a.forEach(function (value) {
+					if (result.has(value) || !b.has(value)) return;
+					result.$add(value);
+					changed = true;
+				});
+				if (changed) result.emit('change', {});
 			}
 		});
 		b.forEach(function (value) {
 			if (a.has(value)) result._add(value);
 		});
 		b.on('change', bListener = function (event) {
-			var type = event.type;
+			var type = event.type, changed;
 			if (type === 'add') {
 				if (a.has(event.value)) result._add(event.value);
 			} else if (type === 'delete') {
 				result._delete(event.value);
 			} else if (type === 'clear') {
 				result._clear();
+			} else {
+				result.forEach(function (value) {
+					if (b.has(value)) return;
+					result.$delete(value);
+					changed = true;
+				});
+				b.forEach(function (value) {
+					if (result.has(value) || !a.has(value)) return;
+					result.$add(value);
+					changed = true;
+				});
+				if (changed) result.emit('change', {});
 			}
 		});
 		resolved = [];
@@ -89,30 +113,58 @@ module.exports = memoize(function (ObservableSet) {
 		  , resolved;
 		a.forEach(onAdd = function (value) { result._add(value); });
 		a.on('change', aListener = function (event) {
-			var type = event.type;
+			var type = event.type, changed;
 			if (type === 'add') {
 				result._add(event.value);
 			} else if (type === 'delete') {
 				if (!b.has(event.value)) result._delete(event.value);
 			} else if (type === 'clear') {
 				result.forEach(function (value) {
-					if (a.has(value) || b.has(value)) return;
-					result._delete(value);
+					if (b.has(value)) return;
+					result.$delete(value);
+					changed = true;
 				});
+				if (changed) result.emit('change', {});
+			} else {
+				result.forEach(function (value) {
+					if (a.has(value) || b.has(value)) return;
+					result.$delete(value);
+					changed = true;
+				});
+				a.forEach(function (value) {
+					if (result.has(value)) return;
+					result.$add(value);
+					changed = true;
+				});
+				if (changed) result.emit('change', {});
 			}
 		});
 		b.forEach(onAdd);
 		b.on('change', bListener = function (event) {
-			var type = event.type;
+			var type = event.type, changed;
 			if (type === 'add') {
 				result._add(event.value);
 			} else if (type === 'delete') {
 				if (!a.has(event.value)) result._delete(event.value);
 			} else if (type === 'clear') {
 				result.forEach(function (value) {
-					if (a.has(value) || b.has(value)) return;
-					result._delete(value);
+					if (a.has(value)) return;
+					result.$delete(value);
+					changed = true;
 				});
+				if (changed) result.emit('change', {});
+			} else {
+				result.forEach(function (value) {
+					if (a.has(value) || b.has(value)) return;
+					result.$delete(value);
+					changed = true;
+				});
+				b.forEach(function (value) {
+					if (result.has(value)) return;
+					result.$add(value);
+					changed = true;
+				});
+				if (changed) result.emit('change', {});
 			}
 		});
 		resolved = [];
@@ -142,29 +194,58 @@ module.exports = memoize(function (ObservableSet) {
 	}, { length: 1, refCounter: true, dispose: invokeDispose });
 
 	not = memPrimitive(function (id, a, b) {
-		var result = new ReadOnly(), aAdd, aListener, bListener, disposed;
-		a.forEach(aAdd = function (value) {
+		var result = new ReadOnly(), aListener, bListener, disposed;
+		a.forEach(function (value) {
 			if (!b.has(value)) result._add(value);
 		});
 		a.on('change', aListener = function (event) {
-			var type = event.type;
+			var type = event.type, changed;
 			if (type === 'add') {
 				if (!b.has(event.value)) result._add(event.value);
 			} else if (type === 'delete') {
 				result._delete(event.value);
 			} else if (type === 'clear') {
 				result._clear();
+			} else {
+				result.forEach(function (value) {
+					if (a.has(value)) return;
+					result.$delete(value);
+					changed = true;
+				});
+				a.forEach(function (value) {
+					if (result.has(value) || b.has(value)) return;
+					result.$add(value);
+					changed = true;
+				});
+				if (changed) result.emit('change', {});
 			}
 		});
 		b.forEach(function (value) { result._delete(value); });
 		b.on('change', bListener = function (event) {
-			var type = event.type;
+			var type = event.type, changed;
 			if (type === 'add') {
 				result._delete(event.value);
 			} else if (type === 'delete') {
 				if (a.has(event.value)) result._add(event.value);
 			} else if (type === 'clear') {
-				a.forEach(aAdd);
+				a.forEach(function (value) {
+					if (result.has(value)) return;
+					result.$add(value);
+					changed = true;
+				});
+				if (changed) result.emit('change', {});
+			} else {
+				result.forEach(function (value) {
+					if (!b.has(value)) return;
+					result.$delete(value);
+					changed = true;
+				});
+				a.forEach(function (value) {
+					if (b.has(value) || result.has(value)) return;
+					result.$add(value);
+					changed = true;
+				});
+				if (changed) result.emit('change', {});
 			}
 		});
 		defineProperties(result, {
