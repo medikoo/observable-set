@@ -26,7 +26,7 @@ module.exports = memoize(function (ObservableSet) {
 	validFunction(ObservableSet);
 	defineProperties(ObservableSet.prototype, memMethods({
 		toArray: d(function (compareFn) {
-			var result, setData, disposed, listener, delListener, clearListener;
+			var result, setData, disposed, listener, delListener, clearListener, tmp;
 			(value(this) && ((compareFn === undefined) || callable(compareFn)));
 			if (this.__setData__) {
 				setData = this.__setData__;
@@ -83,6 +83,12 @@ module.exports = memoize(function (ObservableSet) {
 					} else if (type === 'clear') {
 						clear.call(result);
 						result.emit('change', { type: 'clear' });
+					} else {
+						tmp = aFrom(result);
+						clear.call(result);
+						this.forEach(function (value) { push.call(result, value); });
+						if (compareFn) sort.call(result, compareFn);
+						if (!isCopy.call(result, tmp)) result.emit('change', {});
 					}
 				});
 			}
