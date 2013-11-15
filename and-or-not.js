@@ -33,7 +33,7 @@ module.exports = memoize(function (ObservableSet) {
 	and = memPrimitive(function (id, a, b) {
 		var result = new ReadOnly(), aListener, bListener, disposed, resolved;
 		a.forEach(function (value) {
-			if (b.has(value)) result._add(value);
+			if (b.has(value)) result.$add(value);
 		});
 		a.on('change', aListener = function (event) {
 			var type = event.type, changed;
@@ -58,7 +58,7 @@ module.exports = memoize(function (ObservableSet) {
 			}
 		});
 		b.forEach(function (value) {
-			if (a.has(value)) result._add(value);
+			if (a.has(value)) result.$add(value);
 		});
 		b.on('change', bListener = function (event) {
 			var type = event.type, changed;
@@ -111,7 +111,7 @@ module.exports = memoize(function (ObservableSet) {
 	or = memPrimitive(function (id, a, b) {
 		var result = new ReadOnly(), onAdd, aListener, bListener, disposed
 		  , resolved;
-		a.forEach(onAdd = function (value) { result._add(value); });
+		a.forEach(onAdd = function (value) { result.$add(value); });
 		a.on('change', aListener = function (event) {
 			var type = event.type, changed;
 			if (type === 'add') {
@@ -196,7 +196,7 @@ module.exports = memoize(function (ObservableSet) {
 	not = memPrimitive(function (id, a, b) {
 		var result = new ReadOnly(), aListener, bListener, disposed;
 		a.forEach(function (value) {
-			if (!b.has(value)) result._add(value);
+			if (!b.has(value)) result.$add(value);
 		});
 		a.on('change', aListener = function (event) {
 			var type = event.type, changed;
@@ -220,7 +220,7 @@ module.exports = memoize(function (ObservableSet) {
 				if (changed) result.emit('change', {});
 			}
 		});
-		b.forEach(function (value) { result._delete(value); });
+		b.forEach(function (value) { result.$delete(value); });
 		b.on('change', bListener = function (event) {
 			var type = event.type, changed;
 			if (type === 'add') {
