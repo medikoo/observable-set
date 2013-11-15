@@ -125,7 +125,7 @@ module.exports = memoize(function (ObservableSet) {
 					});
 					if (changed) result.emit('change', {});
 				}
-			}.bind(this));
+			});
 			this.forEach(function (value) { result.$add(registry(cb(value))); });
 			defineProperties(result, {
 				refresh: d(function (value) {
