@@ -22,6 +22,7 @@ require('memoizee/lib/ext/dispose');
 module.exports = memoize(function (ObservableSet) {
 	var ReadOnly = createReadOnly(validFunction(ObservableSet));
 
+	validFunction(ObservableSet);
 	if (!isObservableSet(new ObservableSet())) {
 		throw new TypeError(ObservableSet + " is not observable set constructor");
 	}
