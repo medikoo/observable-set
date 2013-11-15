@@ -42,6 +42,12 @@ module.exports = memoize(function (ObservableSet) {
 						result.$delete(value);
 						changed = true;
 					}, this);
+					this.forEach(function (value) {
+						if (result.has(value)) return;
+						if (!cb(value)) return;
+						result.$add(event.value);
+						changed = true;
+					});
 					if (changed) result.emit('change', {});
 				}
 			}.bind(this));
