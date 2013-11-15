@@ -107,7 +107,7 @@ module.exports = memoize(function (ObservableSet) {
 					inClear = false;
 					valid = [];
 					this.forEach(function (value) {
-						value = registry(cb(event.value));
+						value = registry(cb(value));
 						valid.push(value);
 						if (result.has(value)) return;
 						result.$add(value);
