@@ -220,7 +220,6 @@ module.exports = memoize(function (ObservableSet) {
 				if (changed) result.emit('change', {});
 			}
 		});
-		b.forEach(function (value) { result.$delete(value); });
 		b.on('change', bListener = function (event) {
 			var type = event.type, changed;
 			if (type === 'add') {
