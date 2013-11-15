@@ -1,14 +1,15 @@
 'use strict';
 
-var uniq           = require('es5-ext/array/#/uniq')
-  , invoke         = require('es5-ext/function/invoke')
-  , validFunction  = require('es5-ext/function/valid-function')
-  , validSet       = require('es6-set/valid-set')
-  , WeakMap        = require('es6-weak-map')
-  , d              = require('d/d')
-  , memoize        = require('memoizee/lib/regular')
-  , memPrimitive   = require('memoizee/lib/primitive')
-  , createReadOnly = require('./create-read-only')
+var uniq               = require('es5-ext/array/#/uniq')
+  , invoke             = require('es5-ext/function/invoke')
+  , validFunction      = require('es5-ext/function/valid-function')
+  , validSet           = require('es6-set/valid-set')
+  , WeakMap            = require('es6-weak-map')
+  , d                  = require('d/d')
+  , memoize            = require('memoizee/lib/regular')
+  , memPrimitive       = require('memoizee/lib/primitive')
+  , createReadOnly     = require('./create-read-only')
+  , isObservableSet    = require('./is-observable-set')
 
   , push = Array.prototype.push, slice = Array.prototype.slice
   , defineProperty = Object.defineProperty
@@ -30,6 +31,9 @@ module.exports = memoize(function (ObservableSet) {
 	var ReadOnly = createReadOnly(validFunction(ObservableSet))
 	  , and, or, not, orMethod;
 
+	if (!isObservableSet(new ObservableSet())) {
+		throw new TypeError(ObservableSet + " is not observable set constructor");
+	}
 	and = memPrimitive(function (id, a, b) {
 		var result = new ReadOnly(), aListener, bListener, disposed, resolved;
 		a.forEach(function (value) {
