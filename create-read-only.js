@@ -3,6 +3,7 @@
 var validFunction = require('es5-ext/function/valid-function')
   , d             = require('d/d')
   , memoize       = require('memoizee/lib/regular')
+  , isSet         = require('es6-set/is-set')
 
   , create = Object.create, defineProperties = Object.defineProperties
   , getDescriptor = Object.getOwnPropertyDescriptor
@@ -14,6 +15,9 @@ module.exports = memoize(function (Constructor) {
 	var ReadOnly, descs;
 
 	validFunction(Constructor);
+	if (!isSet(new Constructor())) {
+		throw new TypeError(Constructor + " is not Set constructor");
+	}
 	ReadOnly = function (/* iterable, comparator */) {
 		if (!(this instanceof ReadOnly)) {
 			return new ReadOnly(arguments[0], arguments[1]);

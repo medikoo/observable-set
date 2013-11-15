@@ -5,6 +5,7 @@ var validFunction      = require('es5-ext/function/valid-function')
   , d                  = require('d/d')
   , ee                 = require('event-emitter')
   , memoize            = require('memoizee/lib/regular')
+  , isSet              = require('es6-set/is-set')
   , isObservableSymbol = require('observable-value/symbol-is-observable')
 
   , defineProperty = Object.defineProperty;
@@ -13,6 +14,9 @@ module.exports = memoize(function (Constructor) {
 	var Observable, add, clear, del;
 
 	validFunction(Constructor);
+	if (!isSet(new Constructor())) {
+		throw new TypeError(Constructor + " is not Set constructor");
+	}
 	Observable = function (/* iterable, comparator */) {
 		if (!(this instanceof Observable)) {
 			return new Observable(arguments[0], arguments[1]);
