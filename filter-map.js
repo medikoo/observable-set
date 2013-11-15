@@ -52,7 +52,7 @@ module.exports = memoize(function (ObservableSet) {
 				}
 			}.bind(this));
 			this.forEach(function (value) {
-				if (cb(value)) result._add(value);
+				if (cb(value)) result.$add(value);
 			});
 			defineProperties(result, {
 				refresh: d(function (value) {
@@ -121,7 +121,7 @@ module.exports = memoize(function (ObservableSet) {
 					if (changed) result.emit('change', {});
 				}
 			}.bind(this));
-			this.forEach(function (value) { result._add(registry(cb(value))); });
+			this.forEach(function (value) { result.$add(registry(cb(value))); });
 			defineProperties(result, {
 				refresh: d(function (value) {
 					var pre, post;
