@@ -1,15 +1,16 @@
 'use strict';
 
-var eIndexOf       = require('es5-ext/array/#/e-index-of')
-  , i              = require('es5-ext/function/i')
-  , invoke         = require('es5-ext/function/invoke')
-  , validFunction  = require('es5-ext/function/valid-function')
-  , callable       = require('es5-ext/object/valid-callable')
-  , value          = require('es5-ext/object/valid-value')
-  , d              = require('d/d')
-  , memoize        = require('memoizee/lib/regular')
-  , memMethods     = require('memoizee/lib/d')(memoize)
-  , createReadOnly = require('./create-read-only')
+var eIndexOf        = require('es5-ext/array/#/e-index-of')
+  , i               = require('es5-ext/function/i')
+  , invoke          = require('es5-ext/function/invoke')
+  , validFunction   = require('es5-ext/function/valid-function')
+  , callable        = require('es5-ext/object/valid-callable')
+  , value           = require('es5-ext/object/valid-value')
+  , d               = require('d/d')
+  , memoize         = require('memoizee/lib/regular')
+  , memMethods      = require('memoizee/lib/d')(memoize)
+  , createReadOnly  = require('./create-read-only')
+  , isObservableSet = require('./is-observable-set')
 
   , bind = Function.prototype.bind
   , defineProperties = Object.defineProperties
@@ -21,6 +22,9 @@ require('memoizee/lib/ext/dispose');
 module.exports = memoize(function (ObservableSet) {
 	var ReadOnly = createReadOnly(validFunction(ObservableSet));
 
+	if (!isObservableSet(new ObservableSet())) {
+		throw new TypeError(ObservableSet + " is not observable set constructor");
+	}
 	defineProperties(ObservableSet.prototype, memMethods({
 		filter: d(function (callbackFn/*, thisArg*/) {
 			var result, thisArg, cb, disposed, listener;
