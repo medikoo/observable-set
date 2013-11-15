@@ -1,10 +1,13 @@
 'use strict';
 
-var validFunction  = require('es5-ext/function/valid-function')
-  , setPrototypeOf = require('es5-ext/object/set-prototype-of')
-  , d              = require('d/d')
-  , ee             = require('event-emitter')
-  , memoize        = require('memoizee/lib/regular');
+var validFunction      = require('es5-ext/function/valid-function')
+  , setPrototypeOf     = require('es5-ext/object/set-prototype-of')
+  , d                  = require('d/d')
+  , ee                 = require('event-emitter')
+  , memoize            = require('memoizee/lib/regular')
+  , isObservableSymbol = require('observable-value/symbol-is-observable')
+
+  , defineProperty = Object.defineProperty;
 
 module.exports = memoize(function (Constructor) {
 	var Observable, add, clear, del;
@@ -44,6 +47,7 @@ module.exports = memoize(function (Constructor) {
 		}),
 		$delete: d(del)
 	}));
+	defineProperty(Observable.prototype, isObservableSymbol, d('', true));
 
 	return Observable;
 });

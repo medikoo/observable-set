@@ -26,7 +26,8 @@
     "es6-weak-map": "git://github.com/medikoo/es6-weak-map.git",
     "event-emitter": "git://github.com/medikoo/event-emitter.git",
     "memoizee": "git://github.com/medikoo/memoize.git",
-    "observable-array": "git://github.com/medikoo/observable-array.git"
+    "observable-array": "git://github.com/medikoo/observable-array.git",
+    "observable-value": "git://github.com/medikoo/observable-value.git"
   },
   "devDependencies": {
     "es6-iterator": "git://github.com/medikoo/es6-iterator.git",
