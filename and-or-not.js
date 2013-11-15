@@ -3,13 +3,13 @@
 var uniq               = require('es5-ext/array/#/uniq')
   , invoke             = require('es5-ext/function/invoke')
   , validFunction      = require('es5-ext/function/valid-function')
-  , validSet           = require('es6-set/valid-set')
   , WeakMap            = require('es6-weak-map')
   , d                  = require('d/d')
   , memoize            = require('memoizee/lib/regular')
   , memPrimitive       = require('memoizee/lib/primitive')
   , createReadOnly     = require('./create-read-only')
   , isObservableSet    = require('./is-observable-set')
+  , validObservableSet = require('./valid-observable-set')
 
   , push = Array.prototype.push, slice = Array.prototype.slice
   , defineProperty = Object.defineProperty
@@ -273,8 +273,8 @@ module.exports = memoize(function (ObservableSet) {
 		and: d(function (set1/*, …sets*/) {
 			var sets = [this], set2, result, deps = [], resolved;
 			push.apply(sets, arguments);
-			sets.forEach(validSet);
-			if (sets.length < 2) validSet();
+			sets.forEach(validObservableSet);
+			if (sets.length < 2) validObservableSet();
 			sets.forEach(function (set) {
 				if (set.hasOwnProperty('__and__')) push.apply(this, set.__and__);
 				else this.push(set);
@@ -303,8 +303,8 @@ module.exports = memoize(function (ObservableSet) {
 		or: d(orMethod = function (set1/*, …sets*/) {
 			var sets = [this], set2, result, deps = [], resolved;
 			push.apply(sets, arguments);
-			sets.forEach(validSet);
-			if (sets.length < 2) validSet();
+			sets.forEach(validObservableSet);
+			if (sets.length < 2) validObservableSet();
 			sets.forEach(function (set) {
 				if (set.hasOwnProperty('__or__')) push.apply(this, set.__or__);
 				else this.push(set);
@@ -332,7 +332,7 @@ module.exports = memoize(function (ObservableSet) {
 
 		not: d(function (set/*, …sets*/) {
 			var result;
-			if (!set) validSet(set);
+			if (!set) validObservableSet(set);
 			if (arguments.length > 1) {
 				set = orMethod.apply(arguments[0], slice.call(arguments, 1));
 			}
