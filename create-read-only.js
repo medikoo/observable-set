@@ -16,7 +16,7 @@ module.exports = memoize(function (Constructor) {
 
 	validFunction(Constructor);
 	if (!isSet(new Constructor())) {
-		throw new TypeError(Constructor + " is not Set constructor");
+		throw new TypeError(Constructor + " is not set constructor");
 	}
 	ReadOnly = function (/* iterable, comparator */) {
 		if (!(this instanceof ReadOnly)) {
