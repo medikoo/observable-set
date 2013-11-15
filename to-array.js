@@ -1,19 +1,21 @@
 'use strict';
 
-var aFrom          = require('es5-ext/array/from')
-  , clear          = require('es5-ext/array/#/clear')
-  , eIndexOf       = require('es5-ext/array/#/e-index-of')
-  , isCopy         = require('es5-ext/array/#/is-copy')
-  , invoke         = require('es5-ext/function/invoke')
-  , validFunction  = require('es5-ext/function/valid-function')
-  , callable       = require('es5-ext/object/valid-callable')
-  , value          = require('es5-ext/object/valid-value')
-  , d              = require('d/d')
-  , memoize        = require('memoizee/lib/regular')
-  , memMethods     = require('memoizee/lib/d')(memoize)
-  , ReadOnly       = require('observable-array/create-read-only')(
+var aFrom           = require('es5-ext/array/from')
+  , clear           = require('es5-ext/array/#/clear')
+  , eIndexOf        = require('es5-ext/array/#/e-index-of')
+  , isCopy          = require('es5-ext/array/#/is-copy')
+  , invoke          = require('es5-ext/function/invoke')
+  , validFunction   = require('es5-ext/function/valid-function')
+  , callable        = require('es5-ext/object/valid-callable')
+  , value           = require('es5-ext/object/valid-value')
+  , d               = require('d/d')
+  , memoize         = require('memoizee/lib/regular')
+  , memMethods      = require('memoizee/lib/d')(memoize)
+  , ReadOnly        = require('observable-array/create-read-only')(
 	require('observable-array')
 )
+  , isObservableSet = require('./valid-observable-set')
+
   , push = Array.prototype.push, sort = Array.prototype.sort
   , splice = Array.prototype.splice
   , defineProperties = Object.defineProperties
@@ -24,6 +26,9 @@ require('memoizee/lib/ext/dispose');
 
 module.exports = memoize(function (ObservableSet) {
 	validFunction(ObservableSet);
+	if (!isObservableSet(new ObservableSet())) {
+		throw new TypeError(ObservableSet + " is not observable set constructor");
+	}
 	defineProperties(ObservableSet.prototype, memMethods({
 		toArray: d(function (compareFn) {
 			var result, setData, disposed, listener, delListener, clearListener, tmp;
