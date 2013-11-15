@@ -14,7 +14,7 @@ var aFrom           = require('es5-ext/array/from')
   , ReadOnly        = require('observable-array/create-read-only')(
 	require('observable-array')
 )
-  , isObservableSet = require('./valid-observable-set')
+  , isObservableSet = require('./is-observable-set')
 
   , push = Array.prototype.push, sort = Array.prototype.sort
   , splice = Array.prototype.splice
