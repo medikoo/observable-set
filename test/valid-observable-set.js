@@ -2,7 +2,8 @@
 
 var ee              = require('event-emitter/lib/core')
   , ObservableValue = require('observable-value/value')
-  , ObservableSet    = require('../create')(require('es6-set'));
+  , Set             = require('es6-set')
+  , ObservableSet   = require('../create')(Set);
 
 module.exports = function (t, a) {
 	var x = {}, observable;
@@ -16,6 +17,7 @@ module.exports = function (t, a) {
 	a.throws(function () { t([]); }, TypeError, "Array");
 	a.throws(function () { t(function () {}); }, TypeError, "Function");
 	a.throws(function () { t(ee(x)); }, TypeError, "Emitter");
+	a.throws(function () { t(new Set()); }, TypeError, "Set");
 	observable = new ObservableSet();
 	a(t(observable), observable, "Observable Set");
 };
