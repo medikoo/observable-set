@@ -12,8 +12,8 @@ var ObservableSet = require('observable-set');
 var set = new ObservableSet(['raz', 'dwa']);
 
 set.on('change', function (event) {
-  if (event.type === 'add') console.log("Added:", value);
-  else if (event.type === 'delete') console.log(Deleted:", value);
+  if (event.type === 'add') console.log("Added:", event.value);
+  else if (event.type === 'delete') console.log(Deleted:", event.value);
   else if (event.type === 'clear') console.log("Set cleared");
 });
 
@@ -29,8 +29,8 @@ set = ObservableSet([1, 2, 3, 4, 5, 6]);
 var filtered = set.filter(function (num) { return num % 2; }); // { 1, 3, 5 }
 
 filtered.on('change', function (event) {
-  if (event.type === 'add') console.log("Added:", value);
-  else if (event.type === 'delete') console.log(Deleted:", value);
+  if (event.type === 'add') console.log("Added:", event.value);
+  else if (event.type === 'delete') console.log(Deleted:", event.value);
   else if (event.type === 'clear') console.log("Set cleared");
 });
 
@@ -45,8 +45,8 @@ set = ObservableSet([1, 2, 3, 4, 5, 6]);
 var mapped = set.map(function (num) { return num * 2; }); // { 4, 6, 8, 10, 12 }
 
 mapped.on('change', function (event) {
-  if (event.type === 'add') console.log("Added:", value);
-  else if (event.type === 'delete') console.log(Deleted:", value);
+  if (event.type === 'add') console.log("Added:", event.value);
+  else if (event.type === 'delete') console.log(Deleted:", event.value);
   else if (event.type === 'clear') console.log("Set cleared");
 });
 
@@ -60,8 +60,8 @@ var set2 = ObservableSet(['dwa', 'trzy']);
 var intersection = set1.and(set2); // {'dwa' }
 
 intersection.on('change', function (event) {
-  if (event.type === 'add') console.log("Added:", value);
-  else if (event.type === 'delete') console.log(Deleted:", value);
+  if (event.type === 'add') console.log("Added:", event.value);
+  else if (event.type === 'delete') console.log(Deleted:", event.value);
   else if (event.type === 'clear') console.log("Set cleared");
 });
 
@@ -77,8 +77,8 @@ set2 = ObservableSet(['dwa', 'trzy']);
 var union = set1.or(set2); // { 'raz', 'dwa', 'trzy' }
 
 union.on('change', function (event) {
-  if (event.type === 'add') console.log("Added:", value);
-  else if (event.type === 'delete') console.log(Deleted:", value);
+  if (event.type === 'add') console.log("Added:", event.value);
+  else if (event.type === 'delete') console.log(Deleted:", event.value);
   else if (event.type === 'clear') console.log("Set cleared");
 });
 
@@ -97,8 +97,8 @@ var set2 = ObservableSet(['dwa', 'trzy']);
 var complement = set1.not(set2); // { 'raz' }
 
 complement.on('change', function (event) {
-  if (event.type === 'add') console.log("Added:", value);
-  else if (event.type === 'delete') console.log(Deleted:", value);
+  if (event.type === 'add') console.log("Added:", event.value);
+  else if (event.type === 'delete') console.log(Deleted:", event.value);
   else if (event.type === 'clear') console.log("Set cleared");
 });
 
