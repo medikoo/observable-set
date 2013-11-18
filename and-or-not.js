@@ -8,7 +8,6 @@ var uniq               = require('es5-ext/array/#/uniq')
   , memoize            = require('memoizee/lib/regular')
   , memPrimitive       = require('memoizee/lib/primitive')
   , createReadOnly     = require('./create-read-only')
-  , isObservableSet    = require('./is-observable-set')
   , validObservableSet = require('./valid-observable-set')
 
   , push = Array.prototype.push, slice = Array.prototype.slice
@@ -28,12 +27,12 @@ require('memoizee/lib/ext/ref-counter');
 require('memoizee/lib/ext/dispose');
 
 module.exports = memoize(function (ObservableSet) {
-	var ReadOnly = createReadOnly(validFunction(ObservableSet))
-	  , and, or, not, orMethod;
+	var ReadOnly, and, or, not, orMethod;
 
-	if (!isObservableSet(new ObservableSet())) {
-		throw new TypeError(ObservableSet + " is not observable set constructor");
-	}
+	validFunction(ObservableSet);
+	validObservableSet(ObservableSet.prototype);
+	ReadOnly = createReadOnly(ObservableSet);
+
 	and = memPrimitive(function (id, a, b) {
 		var result = new ReadOnly(), aListener, bListener, disposed, resolved;
 		a.forEach(function (value) {
