@@ -11,6 +11,7 @@ var eIndexOf           = require('es5-ext/array/#/e-index-of')
   , memMethods         = require('memoizee/lib/d')(memoize)
   , createReadOnly     = require('./create-read-only')
   , validObservableSet = require('./valid-observable-set')
+  , emitBatch          = require('./_emit-batch')
 
   , bind = Function.prototype.bind
   , defineProperties = Object.defineProperties
@@ -34,27 +35,51 @@ module.exports = memoize(function (ObservableSet) {
 			cb = memoize(bind.call(callbackFn, thisArg), { length: 1 });
 			result = new ReadOnly();
 			this.on('change', listener = function (event) {
-				var type = event.type, changed;
+				var type = event.type, added, deleted;
 				if (type === 'add') {
 					if (cb(event.value)) result._add(event.value);
-				} else if (type === 'delete') {
+					return;
+				}
+				if (type === 'delete') {
 					result._delete(event.value);
-				} else if (type === 'clear') {
+					return;
+				}
+				if (type === 'clear') {
 					result._clear();
+					return;
+				}
+				if (type === 'batch') {
+					if (event.added) {
+						added = [];
+						event.added.forEach(function (value) {
+							if (!cb(value)) return;
+							result.$add(value);
+							added.push(value);
+						});
+					}
+					if (event.deleted) {
+						deleted = [];
+						event.deleted.forEach(function (value) {
+							if (!result.$delete(value)) return;
+							deleted.push(value);
+						});
+					}
 				} else {
+					deleted = [];
 					result.forEach(function (value) {
 						if (this.has(value)) return;
 						result.$delete(value);
-						changed = true;
+						deleted.push(value);
 					}, this);
+					added = [];
 					this.forEach(function (value) {
 						if (result.has(value)) return;
 						if (!cb(value)) return;
-						result.$add(event.value);
-						changed = true;
+						result.$add(value);
+						added.push(value);
 					});
-					if (changed) result.emit('change', {});
 				}
+				emitBatch(result, added, deleted);
 			}.bind(this));
 			this.forEach(function (value) {
 				if (cb(value)) result.$add(value);
@@ -96,35 +121,66 @@ module.exports = memoize(function (ObservableSet) {
 			} });
 			result = new ReadOnly();
 			this.on('change', listener = function (event) {
-				var type = event.type, changed, valid;
+				var type = event.type, added, deleted, valid;
 				if (type === 'add') {
 					result._add(registry(cb(event.value)));
-				} else if (type === 'delete') {
+					return;
+				}
+				if (type === 'delete') {
 					registry.clearRef(cb(event.value));
-				} else if (type === 'clear') {
+					return;
+				}
+				if (type === 'clear') {
 					inClear = true;
 					registry.clearAll();
 					inClear = false;
 					result._clear();
+					return;
+				}
+				if (type === 'batch') {
+					if (event.added) {
+						added = [];
+						event.added.forEach(function (value) {
+							value = registry(cb(value));
+							if (result.has(value)) return;
+							result.$add(value);
+							added.push(value);
+						});
+					}
+					if (event.deleted) {
+						deleted = [];
+						inClear = true;
+						event.deleted.forEach(function (value) {
+							value = cb(value);
+							registry.clearRef(value);
+							if (!registry.getRefCount(value)) {
+								result.$delete(value);
+								deleted.push(value);
+							}
+						});
+						inClear = false;
+					}
 				} else {
 					inClear = true;
 					registry.clearAll();
 					inClear = false;
 					valid = [];
+					added = [];
 					this.forEach(function (value) {
 						value = registry(cb(value));
 						valid.push(value);
 						if (result.has(value)) return;
 						result.$add(value);
-						changed = true;
+						added.push(value);
 					});
+					deleted = [];
 					result.forEach(function (value) {
 						if (eIndexOf.call(valid, value)) return;
 						result.$delete(value);
-						changed = true;
+						deleted.push(value);
 					});
-					if (changed) result.emit('change', {});
 				}
+				emitBatch(result, added, deleted);
 			});
 			this.forEach(function (value) { result.$add(registry(cb(value))); });
 			defineProperties(result, {

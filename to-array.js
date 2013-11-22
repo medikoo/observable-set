@@ -4,6 +4,7 @@ var aFrom              = require('es5-ext/array/from')
   , clear              = require('es5-ext/array/#/clear')
   , eIndexOf           = require('es5-ext/array/#/e-index-of')
   , isCopy             = require('es5-ext/array/#/is-copy')
+  , remove             = require('es5-ext/array/#/remove')
   , invoke             = require('es5-ext/function/invoke')
   , validFunction      = require('es5-ext/function/valid-function')
   , callable           = require('es5-ext/object/valid-callable')
@@ -87,12 +88,16 @@ module.exports = memoize(function (ObservableSet) {
 					} else if (type === 'clear') {
 						clear.call(result);
 						result.emit('change', { type: 'clear' });
+					} else if (type === 'batch') {
+						if (event.deleted) remove.apply(result, event.deleted);
+						if (event.added) push.apply(result, event.added);
+						if (compareFn) sort.call(result, compareFn);
+						result.emit('change', {});
 					} else {
-						tmp = aFrom(result);
 						clear.call(result);
 						this.forEach(function (value) { push.call(result, value); });
 						if (compareFn) sort.call(result, compareFn);
-						if (!isCopy.call(result, tmp)) result.emit('change', {});
+						result.emit('change', {});
 					}
 				});
 			}

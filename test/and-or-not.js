@@ -175,13 +175,13 @@ exports.tests = function (ObservableSet, a) {
 	a.h3("Clear");
 	set1.clear();
 	a.deep(toArray(set.values()), ['raz', 'trzy']);
-	a.deep([adds, deletes, clears, elses], [2, 2, 0, 1], "Event");
+	a.deep([adds, deletes, clears, elses], [2, 3, 0, 0], "Event");
 
 	a.h2("B");
 	a.h3("Clear");
 	set2.clear();
 	a.deep(toArray(set.values()), []);
-	a.deep([adds, deletes, clears, elses], [2, 2, 0, 2], "Event");
+	a.deep([adds, deletes, clears, elses], [2, 3, 0, 1], "Event");
 
 	// Reset
 	set.off('change', listener);
@@ -262,11 +262,11 @@ exports.tests = function (ObservableSet, a) {
 	a.h3("Clear");
 	set2.clear();
 	a.deep(toArray(set.values()), ['dwa', 'raz']);
-	a.deep([adds, deletes, clears, elses], [2, 2, 0, 1], "Event");
+	a.deep([adds, deletes, clears, elses], [3, 2, 0, 0], "Event");
 
 	a.h2("B");
 	a.h2("Clear");
 	set1.clear();
 	a.deep(toArray(set.values()), []);
-	a.deep([adds, deletes, clears, elses], [2, 2, 1, 1], "Event");
+	a.deep([adds, deletes, clears, elses], [3, 2, 1, 0], "Event");
 };

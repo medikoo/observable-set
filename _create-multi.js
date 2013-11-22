@@ -8,6 +8,7 @@ var setPrototypeOf     = require('es5-ext/object/set-prototype-of')
   , d                  = require('d/d')
   , memoize            = require('memoizee/lib/regular')
   , validObservableSet = require('./valid-observable-set')
+  , emitBatch          = require('./_emit-batch')
 
   , create = Object.create, defineProperties = Object.defineProperties;
 
@@ -205,22 +206,7 @@ module.exports = memoize(function (ObservableSet, Map) {
 					added.push(value);
 				}, this);
 			}
-			if (added && added.length) {
-				if (deleted && deleted.length) {
-					event = { type: 'batch', added: added, deleted: deleted };
-				} else if (added.length === 1) {
-					event = { type: 'add', value: added[0] };
-				} else {
-					event = { type: 'batch', added: added };
-				}
-			} else if (deleted && deleted.length) {
-				if (deleted.length === 1) {
-					event = { type: 'delete', value: deleted[0] };
-				} else {
-					event = { type: 'batch', deleted: deleted };
-				}
-			}
-			if (event) this.emit('change', event);
+			emitBatch(this, added, deleted);
 		})
 	});
 

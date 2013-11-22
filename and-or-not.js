@@ -9,6 +9,7 @@ var uniq               = require('es5-ext/array/#/uniq')
   , memPrimitive       = require('memoizee/lib/primitive')
   , createReadOnly     = require('./create-read-only')
   , validObservableSet = require('./valid-observable-set')
+  , emitBatch          = require('./_emit-batch')
 
   , push = Array.prototype.push, slice = Array.prototype.slice
   , defineProperty = Object.defineProperty
@@ -39,51 +40,101 @@ module.exports = memoize(function (ObservableSet) {
 			if (b.has(value)) result.$add(value);
 		});
 		a.on('change', aListener = function (event) {
-			var type = event.type, changed;
+			var type = event.type, added, deleted;
 			if (type === 'add') {
 				if (b.has(event.value)) result._add(event.value);
-			} else if (type === 'delete') {
+				return;
+			}
+			if (type === 'delete') {
 				result._delete(event.value);
-			} else if (type === 'clear') {
+				return;
+			}
+			if (type === 'clear') {
 				result._clear();
+				return;
+			}
+			if (type === 'batch') {
+				if (event.added) {
+					added = [];
+					event.added.forEach(function (value) {
+						if (!b.has(value)) return;
+						result.$add(value);
+						added.push(value);
+					});
+				}
+				if (event.deleted) {
+					deleted = [];
+					event.deleted.forEach(function (value) {
+						if (!b.has(value)) return;
+						result.$delete(value);
+						deleted.push(value);
+					});
+				}
 			} else {
+				deleted = [];
 				result.forEach(function (value) {
 					if (a.has(value)) return;
 					result.$delete(value);
-					changed = true;
+					deleted.push(value);
 				});
+				added = [];
 				a.forEach(function (value) {
 					if (result.has(value) || !b.has(value)) return;
 					result.$add(value);
-					changed = true;
+					added.push(value);
 				});
-				if (changed) result.emit('change', {});
 			}
+			emitBatch(result, added, deleted);
 		});
 		b.forEach(function (value) {
 			if (a.has(value)) result.$add(value);
 		});
 		b.on('change', bListener = function (event) {
-			var type = event.type, changed;
+			var type = event.type, added, deleted;
 			if (type === 'add') {
 				if (a.has(event.value)) result._add(event.value);
-			} else if (type === 'delete') {
+				return;
+			}
+			if (type === 'delete') {
 				result._delete(event.value);
-			} else if (type === 'clear') {
+				return;
+			}
+			if (type === 'clear') {
 				result._clear();
+				return;
+			}
+			if (type === 'batch') {
+				if (event.added) {
+					added = [];
+					event.added.forEach(function (value) {
+						if (!a.has(value)) return;
+						result.$add(value);
+						added.push(value);
+					});
+				}
+				if (event.deleted) {
+					deleted = [];
+					event.deleted.forEach(function (value) {
+						if (!a.has(value)) return;
+						result.$delete(value);
+						deleted.push(value);
+					});
+				}
 			} else {
+				deleted = [];
 				result.forEach(function (value) {
 					if (b.has(value)) return;
 					result.$delete(value);
-					changed = true;
+					deleted.push(value);
 				});
+				added = [];
 				b.forEach(function (value) {
 					if (result.has(value) || !a.has(value)) return;
 					result.$add(value);
-					changed = true;
+					added.push(value);
 				});
-				if (changed) result.emit('change', {});
 			}
+			emitBatch(result, added, deleted);
 		});
 		resolved = [];
 		if (a.__and__) push.apply(resolved, a.__and__);
@@ -116,59 +167,105 @@ module.exports = memoize(function (ObservableSet) {
 		  , resolved;
 		a.forEach(onAdd = function (value) { result.$add(value); });
 		a.on('change', aListener = function (event) {
-			var type = event.type, changed;
+			var type = event.type, added, deleted;
 			if (type === 'add') {
 				result._add(event.value);
-			} else if (type === 'delete') {
+				return;
+			}
+			if (type === 'delete') {
 				if (!b.has(event.value)) result._delete(event.value);
-			} else if (type === 'clear') {
+				return;
+			}
+			if (type === 'clear') {
+				deleted = [];
 				result.forEach(function (value) {
 					if (b.has(value)) return;
 					result.$delete(value);
-					changed = true;
+					deleted.push(value);
 				});
-				if (changed) result.emit('change', {});
+			} else if (type === 'batch') {
+				if (event.added) {
+					added = [];
+					event.added.forEach(function (value) {
+						if (b.has(value)) return;
+						result.$add(value);
+						added.push(value);
+					});
+				}
+				if (event.deleted) {
+					deleted = [];
+					event.deleted.forEach(function (value) {
+						if (b.has(value)) return;
+						result.$delete(value);
+						deleted.push(value);
+					});
+				}
 			} else {
+				deleted = [];
 				result.forEach(function (value) {
 					if (a.has(value) || b.has(value)) return;
 					result.$delete(value);
-					changed = true;
+					deleted.push(value);
 				});
+				added = [];
 				a.forEach(function (value) {
 					if (result.has(value)) return;
 					result.$add(value);
-					changed = true;
+					added.push(value);
 				});
-				if (changed) result.emit('change', {});
 			}
+			emitBatch(result, added, deleted);
 		});
 		b.forEach(onAdd);
 		b.on('change', bListener = function (event) {
-			var type = event.type, changed;
+			var type = event.type, added, deleted;
 			if (type === 'add') {
 				result._add(event.value);
-			} else if (type === 'delete') {
+				return;
+			}
+			if (type === 'delete') {
 				if (!a.has(event.value)) result._delete(event.value);
-			} else if (type === 'clear') {
+				return;
+			}
+			if (type === 'clear') {
+				deleted = [];
 				result.forEach(function (value) {
 					if (a.has(value)) return;
 					result.$delete(value);
-					changed = true;
+					deleted.push(value);
 				});
-				if (changed) result.emit('change', {});
+			} else if (type === 'batch') {
+				if (event.added) {
+					added = [];
+					event.added.forEach(function (value) {
+						if (a.has(value)) return;
+						result.$add(value);
+						added.push(value);
+					});
+				}
+				if (event.deleted) {
+					deleted = [];
+					event.deleted.forEach(function (value) {
+						if (a.has(value)) return;
+						result.$delete(value);
+						deleted.push(value);
+					});
+				}
 			} else {
+				deleted = [];
 				result.forEach(function (value) {
 					if (a.has(value) || b.has(value)) return;
 					result.$delete(value);
-					changed = true;
+					deleted.push(value);
 				});
+				added = [];
 				b.forEach(function (value) {
 					if (result.has(value)) return;
 					result.$add(value);
-					changed = true;
+					added.push(value);
 				});
-				if (changed) result.emit('change', {});
 			}
+			emitBatch(result, added, deleted);
 		});
 		resolved = [];
 		if (a.__or__) push.apply(resolved, a.__or__);
@@ -202,53 +299,101 @@ module.exports = memoize(function (ObservableSet) {
 			if (!b.has(value)) result.$add(value);
 		});
 		a.on('change', aListener = function (event) {
-			var type = event.type, changed;
+			var type = event.type, added, deleted;
 			if (type === 'add') {
 				if (!b.has(event.value)) result._add(event.value);
-			} else if (type === 'delete') {
+				return;
+			}
+			if (type === 'delete') {
 				result._delete(event.value);
-			} else if (type === 'clear') {
+				return;
+			}
+			if (type === 'clear') {
 				result._clear();
+				return;
+			}
+			if (type === 'batch') {
+				if (event.added) {
+					added = [];
+					event.added.forEach(function (value) {
+						if (b.has(value)) return;
+						result.$add(value);
+						added.push(value);
+					});
+				}
+				if (event.deleted) {
+					deleted = [];
+					event.deleted.forEach(function (value) {
+						if (!result.has(value)) return;
+						result.$delete(value);
+						deleted.push(value);
+					});
+				}
 			} else {
+				deleted = [];
 				result.forEach(function (value) {
 					if (a.has(value)) return;
 					result.$delete(value);
-					changed = true;
+					deleted.push(value);
 				});
+				added = [];
 				a.forEach(function (value) {
 					if (result.has(value) || b.has(value)) return;
 					result.$add(value);
-					changed = true;
+					added.push(value);
 				});
-				if (changed) result.emit('change', {});
 			}
+			emitBatch(result, added, deleted);
 		});
 		b.on('change', bListener = function (event) {
-			var type = event.type, changed;
+			var type = event.type, added, deleted;
 			if (type === 'add') {
 				result._delete(event.value);
-			} else if (type === 'delete') {
+				return;
+			}
+			if (type === 'delete') {
 				if (a.has(event.value)) result._add(event.value);
-			} else if (type === 'clear') {
+				return;
+			}
+			if (type === 'clear') {
+				added = [];
 				a.forEach(function (value) {
 					if (result.has(value)) return;
 					result.$add(value);
-					changed = true;
+					added.push(value);
 				});
-				if (changed) result.emit('change', {});
+			} else if (type === 'batch') {
+				if (event.added) {
+					deleted = [];
+					event.added.forEach(function (value) {
+						if (!result.has(value)) return;
+						result.$delete(value);
+						deleted.push(value);
+					});
+				}
+				if (event.deleted) {
+					added = [];
+					event.deleted.forEach(function (value) {
+						if (!a.has(value)) return;
+						result.$add(value);
+						added.push(value);
+					});
+				}
 			} else {
+				deleted = [];
 				result.forEach(function (value) {
 					if (!b.has(value)) return;
 					result.$delete(value);
-					changed = true;
+					deleted.push(value);
 				});
+				added = [];
 				a.forEach(function (value) {
 					if (b.has(value) || result.has(value)) return;
 					result.$add(value);
-					changed = true;
+					added.push(value);
 				});
-				if (changed) result.emit('change', {});
 			}
+			emitBatch(result, added, deleted);
 		});
 		defineProperties(result, {
 			unref: d(function () {
