@@ -9,8 +9,10 @@ var setPrototypeOf     = require('es5-ext/object/set-prototype-of')
   , memoize            = require('memoizee/lib/regular')
   , validObservableSet = require('./valid-observable-set')
   , emitBatch          = require('./_emit-batch')
+  , multiSetSymbol     = require('./symbol-multi-set')
 
-  , create = Object.create, defineProperties = Object.defineProperties;
+  , create = Object.create, defineProperties = Object.defineProperties
+  , defineProperty = Object.defineProperty;
 
 module.exports = memoize(function (ObservableSet, Map) {
 	var MultiSet = function (/*iterable, comparator*/) {
@@ -210,6 +212,7 @@ module.exports = memoize(function (ObservableSet, Map) {
 			emitBatch(this, added, deleted);
 		})
 	});
+	defineProperty(MultiSet.prototype, multiSetSymbol, d('', true));
 
 	return MultiSet;
 }, { length: 1 });
