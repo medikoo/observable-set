@@ -14,7 +14,7 @@ var setPrototypeOf     = require('es5-ext/object/set-prototype-of')
   , create = Object.create, defineProperties = Object.defineProperties
   , MultiSet;
 
-MultiSet = module.exports = function (/* iterable, comparator */) {
+MultiSet = module.exports = function (/*iterable, comparator*/) {
 	var iterable = arguments[0], comparator = arguments[1], sets;
 	if (!(this instanceof MultiSet)) return new MultiSet(iterable, comparator);
 	if (iterable != null) {
