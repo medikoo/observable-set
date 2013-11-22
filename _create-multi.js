@@ -29,6 +29,7 @@ module.exports = memoize(function (ObservableSet, Map) {
 			__sets__: d(sets),
 			__listeners__: d(new NativeMap())
 		});
+		if (!sets) return;
 		sets.forEach(function (set) {
 			var listener;
 			set.forEach(function (value) {
