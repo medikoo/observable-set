@@ -3,8 +3,8 @@
 var ee              = require('event-emitter/lib/core')
   , ObservableValue = require('observable-value/value')
   , Set             = require('es6-set')
-  , ObservableSet   = require('../create')(Set)
-  , MultiSet        = require('../multi');
+  , ObservableSet   = require('../../create')(Set)
+  , MultiSet        = require('../../multi');
 
 module.exports = function (t, a) {
 	var x = {};

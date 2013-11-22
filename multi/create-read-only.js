@@ -3,7 +3,7 @@
 var validFunction = require('es5-ext/function/valid-function')
   , d             = require('d/d')
   , memoize       = require('memoizee/lib/regular')
-  , validMultiSet = require('./valid-observable-multi-set')
+  , validMultiSet = require('./valid-multi-set')
 
   , create = Object.create, defineProperties = Object.defineProperties
   , getDescriptor = Object.getOwnPropertyDescriptor

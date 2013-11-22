@@ -1,6 +1,6 @@
 'use strict';
 
-var isMultiSet = require('./is-observable-multi-set');
+var isMultiSet = require('./is-multi-set');
 
 module.exports = function (value) {
 	if (isMultiSet(value)) return value;

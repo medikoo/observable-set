@@ -1,9 +1,9 @@
 'use strict';
 
 var toArray    = require('es6-iterator/to-array')
-  , MultiSet   = require('../multi')
-  , Set        = require('../')
-  , isMultiSet = require('../is-observable-multi-set');
+  , MultiSet   = require('../../multi')
+  , Set        = require('../../')
+  , isMultiSet = require('../../multi/is-multi-set');
 
 module.exports = function (t, a) {
 	var ReadOnlySet = t(MultiSet), set = new Set(['foo', 'bar'])

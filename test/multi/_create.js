@@ -1,10 +1,10 @@
 'use strict';
 
 var toArray = require('es6-iterator/to-array')
-  , Set     = require('../');
+  , Set     = require('../../');
 
 module.exports = exports = function (t, a) {
-	exports.tests(t(require('../create-read-only')(require('../')),
+	exports.tests(t(require('../../create-read-only')(require('../../')),
 		require('es6-map')), a);
 };
 

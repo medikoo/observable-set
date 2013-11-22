@@ -7,9 +7,9 @@ var setPrototypeOf     = require('es5-ext/object/set-prototype-of')
   , Set                = require('es6-set')
   , d                  = require('d/d')
   , memoize            = require('memoizee/lib/regular')
-  , validObservableSet = require('./valid-observable-set')
-  , emitBatch          = require('./_emit-batch')
-  , multiSetSymbol     = require('./symbol-multi-set')
+  , validObservableSet = require('../valid-observable-set')
+  , emitBatch          = require('../_emit-batch')
+  , multiSetSymbol     = require('./symbol')
 
   , create = Object.create, defineProperties = Object.defineProperties
   , defineProperty = Object.defineProperty;
