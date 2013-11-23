@@ -51,6 +51,7 @@ module.exports = memoize(function (Constructor) {
 		clear: d(function () {
 			if (!this.size) return;
 			clear.call(this);
+			if (this.__onHold__) this.__added__ = this.__deleted__ = null;
 			this.emit('change', { type: 'clear' });
 		}),
 		$clear: d(clear),
