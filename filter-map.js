@@ -35,7 +35,7 @@ module.exports = memoize(function (ObservableSet) {
 			cb = memoize(bind.call(callbackFn, thisArg), { length: 1 });
 			result = new ReadOnly();
 			this.on('change', listener = function (event) {
-				var type = event.type, added, deleted;
+				var type = event.type;
 				if (type === 'add') {
 					if (cb(event.value)) result._add(event.value);
 					return;
@@ -48,38 +48,29 @@ module.exports = memoize(function (ObservableSet) {
 					result._clear();
 					return;
 				}
+				result.__onHold__ = true;
 				if (type === 'batch') {
 					if (event.added) {
-						added = [];
 						event.added.forEach(function (value) {
 							if (!cb(value)) return;
-							result.$add(value);
-							added.push(value);
+							result._add(value);
 						});
 					}
 					if (event.deleted) {
-						deleted = [];
-						event.deleted.forEach(function (value) {
-							if (!result.$delete(value)) return;
-							deleted.push(value);
-						});
+						event.deleted.forEach(function (value) { result._delete(value); });
 					}
 				} else {
-					deleted = [];
 					result.forEach(function (value) {
 						if (this.has(value)) return;
-						result.$delete(value);
-						deleted.push(value);
+						result._delete(value);
 					}, this);
-					added = [];
 					this.forEach(function (value) {
 						if (result.has(value)) return;
 						if (!cb(value)) return;
-						result.$add(value);
-						added.push(value);
+						result._add(value);
 					});
 				}
-				emitBatch(result, added, deleted);
+				result._release_();
 			}.bind(this));
 			this.forEach(function (value) {
 				if (cb(value)) result.$add(value);
@@ -121,7 +112,7 @@ module.exports = memoize(function (ObservableSet) {
 			} });
 			result = new ReadOnly();
 			this.on('change', listener = function (event) {
-				var type = event.type, added, deleted, valid;
+				var type = event.type, valid;
 				if (type === 'add') {
 					result._add(registry(cb(event.value)));
 					return;
@@ -137,25 +128,22 @@ module.exports = memoize(function (ObservableSet) {
 					result._clear();
 					return;
 				}
+				result.__onHold__ = true;
 				if (type === 'batch') {
 					if (event.added) {
-						added = [];
 						event.added.forEach(function (value) {
 							value = registry(cb(value));
 							if (result.has(value)) return;
-							result.$add(value);
-							added.push(value);
+							result._add(value);
 						});
 					}
 					if (event.deleted) {
-						deleted = [];
 						inClear = true;
 						event.deleted.forEach(function (value) {
 							value = cb(value);
 							registry.clearRef(value);
 							if (!registry.getRefCount(value)) {
-								result.$delete(value);
-								deleted.push(value);
+								result._delete(value);
 							}
 						});
 						inClear = false;
@@ -165,22 +153,18 @@ module.exports = memoize(function (ObservableSet) {
 					registry.clearAll();
 					inClear = false;
 					valid = [];
-					added = [];
 					this.forEach(function (value) {
 						value = registry(cb(value));
 						valid.push(value);
 						if (result.has(value)) return;
-						result.$add(value);
-						added.push(value);
+						result._add(value);
 					});
-					deleted = [];
 					result.forEach(function (value) {
 						if (eIndexOf.call(valid, value)) return;
-						result.$delete(value);
-						deleted.push(value);
+						result._delete(value);
 					});
 				}
-				emitBatch(result, added, deleted);
+				result._release_();
 			});
 			this.forEach(function (value) { result.$add(registry(cb(value))); });
 			defineProperties(result, {
