@@ -36,8 +36,12 @@ module.exports = memoize(function (Constructor) {
 			if (this.has(value)) return this;
 			add.call(this, value);
 			if (this.__onHold__) {
-				if (!this.__added__) this.__added__ = [value];
-				else this.__added__.push(value);
+				if (this.__deleted__ && this.__deleted__.has(value)) {
+					this.__deleted__.delete(value);
+				} else {
+					if (!this.__added__) this.__added__ = new Constructor();
+					this.__added__.add(value);
+				}
 				return this;
 			}
 			this.emit('change', { type: 'add', value: value });
@@ -53,8 +57,12 @@ module.exports = memoize(function (Constructor) {
 		delete: d(function (value) {
 			if (!del.call(this, value)) return false;
 			if (this.__onHold__) {
-				if (!this.__deleted__) this.__deleted__ = [value];
-				else this.__deleted__.push(value);
+				if (this.__added__ && this.__added__.has(value)) {
+					this.__added__.delete(value);
+				} else {
+					if (!this.__deleted__) this.__deleted__ = new Constructor();
+					this.__deleted__.add(value);
+				}
 				return this;
 			}
 			this.emit('change', { type: 'delete', value: value });
@@ -63,17 +71,19 @@ module.exports = memoize(function (Constructor) {
 		$delete: d(del),
 		_release_: d(function () {
 			var event, added = this.__added__, deleted = this.__deleted__;
-			if (added && added.length) {
-				if (deleted && deleted.length) {
+			if (added && added.size) {
+				if (deleted && deleted.size) {
 					event = { type: 'batch', added: added, deleted: deleted };
-				} else if (added.length === 1) {
-					event = { type: 'add', value: added[0] };
+				} else if (added.size === 1) {
+					added.forEach(function (value) { added = value; });
+					event = { type: 'add', value: added };
 				} else {
 					event = { type: 'batch', added: added };
 				}
-			} else if (deleted && deleted.length) {
-				if (deleted.length === 1) {
-					event = { type: 'delete', value: deleted[0] };
+			} else if (deleted && deleted.size) {
+				if (deleted.size === 1) {
+					deleted.forEach(function (value) { deleted = value; });
+					event = { type: 'delete', value: deleted };
 				} else {
 					event = { type: 'batch', deleted: deleted };
 				}
