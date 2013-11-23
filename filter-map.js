@@ -11,7 +11,6 @@ var eIndexOf           = require('es5-ext/array/#/e-index-of')
   , memMethods         = require('memoizee/lib/d')(memoize)
   , createReadOnly     = require('./create-read-only')
   , validObservableSet = require('./valid-observable-set')
-  , emitBatch          = require('./_emit-batch')
 
   , bind = Function.prototype.bind
   , defineProperties = Object.defineProperties

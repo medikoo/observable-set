@@ -9,7 +9,6 @@ var uniq               = require('es5-ext/array/#/uniq')
   , memPrimitive       = require('memoizee/lib/primitive')
   , createReadOnly     = require('./create-read-only')
   , validObservableSet = require('./valid-observable-set')
-  , emitBatch          = require('./_emit-batch')
 
   , push = Array.prototype.push, slice = Array.prototype.slice
   , defineProperty = Object.defineProperty
