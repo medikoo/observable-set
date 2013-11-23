@@ -16,7 +16,7 @@ module.exports = memoize(function (Constructor) {
 	validFunction(Constructor);
 	validSet(Constructor.prototype);
 
-	Observable = function (/* iterable, comparator */) {
+	Observable = function (/*iterable, comparator*/) {
 		if (!(this instanceof Observable)) {
 			return new Observable(arguments[0], arguments[1]);
 		}
