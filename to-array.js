@@ -31,7 +31,7 @@ module.exports = memoize(function (ObservableSet) {
 
 	defineProperties(ObservableSet.prototype, memMethods({
 		toArray: d(function (compareFn) {
-			var result, setData, disposed, listener, delListener, clearListener, tmp;
+			var result, setData, disposed, listener, delListener, clearListener;
 			(value(this) && ((compareFn === undefined) || callable(compareFn)));
 			if (this.__setData__) {
 				setData = this.__setData__;
