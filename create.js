@@ -90,4 +90,4 @@ module.exports = memoize(function (Constructor) {
 	defineProperty(Observable.prototype, isObservableSymbol, d('', true));
 
 	return Observable;
-}));
+});
