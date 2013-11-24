@@ -94,9 +94,9 @@ module.exports = memoize(function (Constructor) {
 			this.emit('change', event);
 		})
 	}, lazy({
-		__onHold__: d('w', function () { return null; }),
-		__added__: d('w', function () { return null; }),
-		__deleted__: d('w', function () { return null; })
+		__onHold__: d('w', null),
+		__added__: d('w', null),
+		__deleted__: d('w', null)
 	}))));
 	defineProperty(Observable.prototype, isObservableSymbol, d('', true));
 
