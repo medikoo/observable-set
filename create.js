@@ -35,7 +35,7 @@ module.exports = memoize(function (Constructor) {
 		add: d(function (value) {
 			if (this.has(value)) return this;
 			add.call(this, value);
-			if (this.__onHold__) {
+			if (this.__hold__) {
 				if (this.__deleted__ && this.__deleted__.has(value)) {
 					this.__deleted__.delete(value);
 				} else {
@@ -51,13 +51,13 @@ module.exports = memoize(function (Constructor) {
 		clear: d(function () {
 			if (!this.size) return;
 			clear.call(this);
-			if (this.__onHold__) this.__added__ = this.__deleted__ = null;
+			if (this.__hold__) this.__added__ = this.__deleted__ = null;
 			this.emit('change', { type: 'clear' });
 		}),
 		$clear: d(clear),
 		delete: d(function (value) {
 			if (!del.call(this, value)) return false;
-			if (this.__onHold__) {
+			if (this.__hold__) {
 				if (this.__added__ && this.__added__.has(value)) {
 					this.__added__.delete(value);
 				} else {
@@ -70,8 +70,12 @@ module.exports = memoize(function (Constructor) {
 			return true;
 		}),
 		$delete: d(del),
-		_release_: d(function () {
-			var event, added = this.__added__, deleted = this.__deleted__;
+		_hold_: d.gs(function () { return this.__hold__; }, function (value) {
+			var event, added, deleted;
+			this.__hold__ = value;
+			if (value) return;
+			added = this.__added__;
+			deleted = this.__deleted__;
 			if (added && added.size) {
 				if (deleted && deleted.size) {
 					event = { type: 'batch', added: added, deleted: deleted };
@@ -89,12 +93,12 @@ module.exports = memoize(function (Constructor) {
 					event = { type: 'batch', deleted: deleted };
 				}
 			}
-			this.__added__ = this.__deleted__ = this.__onHold__ = null;
+			this.__added__ = this.__deleted__ = null;
 			if (!event) return;
 			this.emit('change', event);
 		})
 	}, lazy({
-		__onHold__: d('w', null),
+		__hold__: d('w', 0),
 		__added__: d('w', null),
 		__deleted__: d('w', null)
 	}))));
