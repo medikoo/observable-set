@@ -80,15 +80,13 @@ module.exports = memoize(function (Constructor) {
 				if (deleted && deleted.size) {
 					event = { type: 'batch', added: added, deleted: deleted };
 				} else if (added.size === 1) {
-					added.forEach(function (value) { added = value; });
-					event = { type: 'add', value: added };
+					event = { type: 'add', value: added.values().next().value };
 				} else {
 					event = { type: 'batch', added: added };
 				}
 			} else if (deleted && deleted.size) {
 				if (deleted.size === 1) {
-					deleted.forEach(function (value) { deleted = value; });
-					event = { type: 'delete', value: deleted };
+					event = { type: 'delete', value: deleted.values().next().value };
 				} else {
 					event = { type: 'batch', deleted: deleted };
 				}
