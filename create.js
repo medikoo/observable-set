@@ -9,20 +9,27 @@ var validFunction      = require('es5-ext/function/valid-function')
   , memoize            = require('memoizee/lib/regular')
   , validSet           = require('es6-set/valid-set')
   , isObservableSymbol = require('observable-value/symbol-is-observable')
+  , createReadOnly     = require('./create-read-only')
 
   , defineProperty = Object.defineProperty;
 
 module.exports = memoize(function (Constructor) {
-	var Observable, add, clear, del;
+	var Observable, add, clear, del, ReadOnly;
 
 	validFunction(Constructor);
 	validSet(Constructor.prototype);
 
+	ReadOnly = createReadOnly(Constructor);
+
 	Observable = function (/*iterable, comparator*/) {
+		var comparator = arguments[1];
 		if (!(this instanceof Observable)) {
-			return new Observable(arguments[0], arguments[1]);
+			return new Observable(arguments[0], comparator);
 		}
 		Constructor.apply(this, arguments);
+		if (!this.__comparator__) {
+			defineProperty(this, '__comparator__', d('', comparator));
+		}
 	};
 	if (setPrototypeOf) setPrototypeOf(Observable, Constructor);
 
@@ -33,14 +40,19 @@ module.exports = memoize(function (Constructor) {
 	Observable.prototype = ee(Object.create(Constructor.prototype, assign({
 		constructor: d(Observable),
 		add: d(function (value) {
+			var event;
 			if (this.has(value)) return this;
 			add.call(this, value);
-			if (this.__hold__) {
-				if (this.__deleted__ && this.__deleted__.has(value)) {
-					this.__deleted__.delete(value);
+			if (this.__postponed__) {
+				event = this.__postponedEvent__;
+				if (!event) event = this.__postponedEvent__ = {};
+				if (event.deleted && event.deleted.has(value)) {
+					event.deleted._delete(value);
 				} else {
-					if (!this.__added__) this.__added__ = new Constructor();
-					this.__added__.add(value);
+					if (!event.added) {
+						event.added = new ReadOnly(null, this.__comparator__);
+					}
+					event.added._add(value);
 				}
 				return this;
 			}
@@ -49,20 +61,43 @@ module.exports = memoize(function (Constructor) {
 		}),
 		$add: d(add),
 		clear: d(function () {
+			var event;
 			if (!this.size) return;
+			if (this.__postponed__) {
+				event = this.__postponedEvent__;
+				if (!event) {
+					event = this.__postponedEvent__ =
+						{ deleted: new ReadOnly(this, this.__comparator__) };
+				} else {
+					this.forEach(function (value) {
+						if (event.added && event.added.has(value)) {
+							event.added._delete(value);
+							return;
+						}
+						if (!event.deleted) {
+							event.deleted = new ReadOnly(null, this.__comparator__);
+						}
+						event.deleted._add(value);
+					}, this);
+				}
+			}
 			clear.call(this);
-			if (this.__hold__) this.__added__ = this.__deleted__ = null;
-			this.emit('change', { type: 'clear' });
+			if (!this.__postponed__) this.emit('change', { type: 'clear' });
 		}),
 		$clear: d(clear),
 		delete: d(function (value) {
+			var event;
 			if (!del.call(this, value)) return false;
-			if (this.__hold__) {
-				if (this.__added__ && this.__added__.has(value)) {
-					this.__added__.delete(value);
+			if (this.__postponed__) {
+				event = this.__postponedEvent__;
+				if (!event) event = this.__postponedEvent__ = {};
+				if (event.added && event.added.has(value)) {
+					event.added._delete(value);
 				} else {
-					if (!this.__deleted__) this.__deleted__ = new Constructor();
-					this.__deleted__.add(value);
+					if (!event.deleted) {
+						event.deleted = new ReadOnly(null, this.__comparator__);
+					}
+					event.deleted._add(value);
 				}
 				return this;
 			}
@@ -70,35 +105,46 @@ module.exports = memoize(function (Constructor) {
 			return true;
 		}),
 		$delete: d(del),
-		_hold_: d.gs(function () { return this.__hold__; }, function (value) {
-			var event, added, deleted;
-			this.__hold__ = value;
+		_postponed_: d.gs(function () {
+			return this.__postponed__;
+		}, function (value) {
+			var event;
+			this.__postponed__ = value;
 			if (value) return;
-			added = this.__added__;
-			deleted = this.__deleted__;
-			if (added && added.size) {
-				if (deleted && deleted.size) {
-					event = { type: 'batch', added: added, deleted: deleted };
-				} else if (added.size === 1) {
-					event = { type: 'add', value: added.values().next().value };
+			event = this.__postponedEvent__;
+			if (!event) return;
+			if (event.added && event.added.size) {
+				if (event.deleted && event.deleted.size) {
+					event.type = 'batch';
+				} else if (event.added.size === 1) {
+					event.type = 'add';
+					event.value = event.added.values().next().value;
+					delete event.deleted;
+					delete event.added;
 				} else {
-					event = { type: 'batch', added: added };
+					event.type = 'batch';
+					delete event.deleted;
 				}
-			} else if (deleted && deleted.size) {
-				if (deleted.size === 1) {
-					event = { type: 'delete', value: deleted.values().next().value };
+			} else if (event.deleted && event.deleted.size) {
+				if (event.deleted.size === 1) {
+					event.type = 'delete';
+					event.value = event.deleted.values().next().value;
+					delete event.added;
+					delete event.deleted;
 				} else {
-					event = { type: 'batch', deleted: deleted };
+					event.type = 'batch';
+					delete event.added;
 				}
+			} else {
+				event = null;
 			}
-			this.__added__ = this.__deleted__ = null;
+			this.__postponedEvent__ = null;
 			if (!event) return;
 			this.emit('change', event);
 		})
 	}, lazy({
-		__hold__: d('w', 0),
-		__added__: d('w', null),
-		__deleted__: d('w', null)
+		__postponed__: d('w', 0),
+		__postponedEvent__: d('w', null)
 	}))));
 	defineProperty(Observable.prototype, isObservableSymbol, d('', true));
 

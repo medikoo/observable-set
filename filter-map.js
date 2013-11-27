@@ -47,7 +47,7 @@ module.exports = memoize(function (ObservableSet) {
 					result._clear();
 					return;
 				}
-				result._hold_ += 1;
+				result._postponed_ += 1;
 				if (type === 'batch') {
 					if (event.added) {
 						event.added.forEach(function (value) {
@@ -69,7 +69,7 @@ module.exports = memoize(function (ObservableSet) {
 						result._add(value);
 					});
 				}
-				result._hold_ -= 1;
+				result._postponed_ -= 1;
 			}.bind(this));
 			this.forEach(function (value) {
 				if (cb(value)) result.$add(value);
@@ -127,7 +127,7 @@ module.exports = memoize(function (ObservableSet) {
 					result._clear();
 					return;
 				}
-				result._hold_ += 1;
+				result._postponed_ += 1;
 				if (type === 'batch') {
 					if (event.added) {
 						event.added.forEach(function (value) {
@@ -163,7 +163,7 @@ module.exports = memoize(function (ObservableSet) {
 						result._delete(value);
 					});
 				}
-				result._hold_ -= 1;
+				result._postponed_ -= 1;
 			});
 			this.forEach(function (value) { result.$add(registry(cb(value))); });
 			defineProperties(result, {

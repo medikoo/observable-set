@@ -52,7 +52,7 @@ module.exports = memoize(function (ObservableSet) {
 				result._clear();
 				return;
 			}
-			result._hold_ += 1;
+			result._postponed_ += 1;
 			if (type === 'batch') {
 				if (event.added) {
 					event.added.forEach(function (value) {
@@ -76,7 +76,7 @@ module.exports = memoize(function (ObservableSet) {
 					result._add(value);
 				});
 			}
-			result._hold_ -= 1;
+			result._postponed_ -= 1;
 		});
 		b.forEach(function (value) {
 			if (a.has(value)) result.$add(value);
@@ -95,7 +95,7 @@ module.exports = memoize(function (ObservableSet) {
 				result._clear();
 				return;
 			}
-			result._hold_ += 1;
+			result._postponed_ += 1;
 			if (type === 'batch') {
 				if (event.added) {
 					event.added.forEach(function (value) {
@@ -119,7 +119,7 @@ module.exports = memoize(function (ObservableSet) {
 					result._add(value);
 				});
 			}
-			result._hold_ -= 1;
+			result._postponed_ -= 1;
 		});
 		resolved = [];
 		if (a.__and__) push.apply(resolved, a.__and__);
@@ -161,7 +161,7 @@ module.exports = memoize(function (ObservableSet) {
 				if (!b.has(event.value)) result._delete(event.value);
 				return;
 			}
-			result._hold_ += 1;
+			result._postponed_ += 1;
 			if (type === 'clear') {
 				result.forEach(function (value) {
 					if (b.has(value)) return;
@@ -190,7 +190,7 @@ module.exports = memoize(function (ObservableSet) {
 					result._add(value);
 				});
 			}
-			result._hold_ -= 1;
+			result._postponed_ -= 1;
 		});
 		b.forEach(onAdd);
 		b.on('change', bListener = function (event) {
@@ -203,7 +203,7 @@ module.exports = memoize(function (ObservableSet) {
 				if (!a.has(event.value)) result._delete(event.value);
 				return;
 			}
-			result._hold_ += 1;
+			result._postponed_ += 1;
 			if (type === 'clear') {
 				result.forEach(function (value) {
 					if (a.has(value)) return;
@@ -232,7 +232,7 @@ module.exports = memoize(function (ObservableSet) {
 					result._add(value);
 				});
 			}
-			result._hold_ -= 1;
+			result._postponed_ -= 1;
 		});
 		resolved = [];
 		if (a.__or__) push.apply(resolved, a.__or__);
@@ -279,7 +279,7 @@ module.exports = memoize(function (ObservableSet) {
 				result._clear();
 				return;
 			}
-			result._hold_ += 1;
+			result._postponed_ += 1;
 			if (type === 'batch') {
 				if (event.added) {
 					event.added.forEach(function (value) {
@@ -303,7 +303,7 @@ module.exports = memoize(function (ObservableSet) {
 					result._add(value);
 				});
 			}
-			result._hold_ -= 1;
+			result._postponed_ -= 1;
 		});
 		b.on('change', bListener = function (event) {
 			var type = event.type;
@@ -315,7 +315,7 @@ module.exports = memoize(function (ObservableSet) {
 				if (a.has(event.value)) result._add(event.value);
 				return;
 			}
-			result._hold_ += 1;
+			result._postponed_ += 1;
 			if (type === 'clear') {
 				a.forEach(function (value) {
 					if (result.has(value)) return;
@@ -344,7 +344,7 @@ module.exports = memoize(function (ObservableSet) {
 					result._add(value);
 				});
 			}
-			result._hold_ -= 1;
+			result._postponed_ -= 1;
 		});
 		defineProperties(result, {
 			unref: d(function () {
