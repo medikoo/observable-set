@@ -2,11 +2,13 @@
 
 var Set     = require('es6-set')
   , isSet   = require('es6-set/is-set')
-  , toArray = require('es6-iterator/to-array');
+  , toArray = require('es6-iterator/to-array')
+
+  , create = Object.create;
 
 module.exports = function (t, a) {
 	var ReadOnlySet = t(Set), arr = ['foo', 'bar']
-	  , set = new ReadOnlySet(arr);
+	  , set = new ReadOnlySet(arr), X;
 
 	a(isSet(set), true, "Set");
 	a(set instanceof ReadOnlySet, true, "Subclass");
@@ -17,4 +19,11 @@ module.exports = function (t, a) {
 	a.throws(function () { set.clear(); }, RangeError, "Clear");
 
 	a.deep(toArray(set.values()), ['foo', 'bar'], "Content unaltered");
+
+	X = function () {};
+	X.prototype = create(Set.prototype);
+	X.prototype.constructor = X;
+
+	X = t(X);
+	a(X.prototype._add, Set.prototype.add, "Prototype: deep");
 };

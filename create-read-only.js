@@ -7,6 +7,7 @@ var validFunction = require('es5-ext/function/valid-function')
 
   , create = Object.create, defineProperties = Object.defineProperties
   , getDescriptor = Object.getOwnPropertyDescriptor
+  , getPrototypeOf = Object.getPrototypeOf
   , readOnlyThrow;
 
 readOnlyThrow = d(function () { throw new RangeError("Set is read-only"); });
@@ -30,8 +31,13 @@ module.exports = memoize(function (Constructor) {
 
 	descs = {};
 	['add', 'clear', 'delete'].forEach(function (name) {
+		var proto = Constructor.prototype;
 		descs[name] = readOnlyThrow;
-		descs['_' + name] = getDescriptor(Constructor.prototype, name);
+		while (proto && !proto.hasOwnProperty(name)) proto = getPrototypeOf(proto);
+		if (!proto) {
+			throw new TypeError(Constructor + " is not valid Set constructor");
+		}
+		descs['_' + name] = getDescriptor(proto, name);
 	});
 	defineProperties(ReadOnly.prototype, descs);
 
