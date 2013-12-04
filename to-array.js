@@ -6,7 +6,6 @@ var aFrom              = require('es5-ext/array/from')
   , isCopy             = require('es5-ext/array/#/is-copy')
   , remove             = require('es5-ext/array/#/remove')
   , invoke             = require('es5-ext/function/invoke')
-  , validFunction      = require('es5-ext/function/valid-function')
   , callable           = require('es5-ext/object/valid-callable')
   , value              = require('es5-ext/object/valid-value')
   , d                  = require('d/d')
@@ -25,11 +24,10 @@ var aFrom              = require('es5-ext/array/from')
 require('memoizee/lib/ext/ref-counter');
 require('memoizee/lib/ext/dispose');
 
-module.exports = memoize(function (ObservableSet) {
-	validFunction(ObservableSet);
-	validObservableSet(ObservableSet.prototype);
+module.exports = memoize(function (prototype) {
+	validObservableSet(prototype);
 
-	defineProperties(ObservableSet.prototype, memMethods({
+	return defineProperties(prototype, memMethods({
 		toArray: d(function (compareFn) {
 			var result, setData, disposed, listener, delListener, clearListener;
 			(value(this) && ((compareFn === undefined) || callable(compareFn)));
@@ -128,6 +126,4 @@ module.exports = memoize(function (ObservableSet) {
 			return result;
 		}, { refCounter: true, dispose: invokeDispose })
 	}));
-
-	return ObservableSet;
 });

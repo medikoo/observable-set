@@ -11,5 +11,7 @@ var validFunction = require('es5-ext/function/valid-function')
 module.exports = memoize(function (Set) {
 	validFunction(Set);
 	validSet(Set.prototype);
-	return toArray(andOrNot(filterMap(create(Set))));
+	Set = create(Set);
+	toArray(andOrNot(filterMap(Set.prototype)));
+	return Set;
 });

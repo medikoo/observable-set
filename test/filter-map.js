@@ -3,7 +3,8 @@
 var toArray = require('es6-iterator/to-array');
 
 module.exports = exports = function (t, a) {
-	exports.tests(t(require('../create')(require('es6-set'))), a);
+	exports.tests(t(require('../create')(require('es6-set'))
+		.prototype).constructor, a);
 };
 
 exports.tests = function (ObservableSet, a) {

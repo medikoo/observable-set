@@ -2,7 +2,6 @@
 
 var uniq               = require('es5-ext/array/#/uniq')
   , invoke             = require('es5-ext/function/invoke')
-  , validFunction      = require('es5-ext/function/valid-function')
   , WeakMap            = require('es6-weak-map')
   , d                  = require('d/d')
   , memoize            = require('memoizee/lib/regular')
@@ -26,12 +25,11 @@ getSetId = (function () {
 require('memoizee/lib/ext/ref-counter');
 require('memoizee/lib/ext/dispose');
 
-module.exports = memoize(function (ObservableSet) {
+module.exports = memoize(function (prototype) {
 	var ReadOnly, and, or, not, orMethod;
 
-	validFunction(ObservableSet);
-	validObservableSet(ObservableSet.prototype);
-	ReadOnly = createReadOnly(ObservableSet);
+	validObservableSet(prototype);
+	ReadOnly = createReadOnly(prototype.constructor);
 
 	and = memPrimitive(function (id, a, b) {
 		var result = new ReadOnly(), aListener, bListener, disposed, resolved;
@@ -364,7 +362,7 @@ module.exports = memoize(function (ObservableSet) {
 		return result;
 	}, { length: 1, refCounter: true, dispose: invokeDispose });
 
-	defineProperties(ObservableSet.prototype, {
+	return defineProperties(prototype, {
 		and: d(function (set1/*, …sets*/) {
 			var sets = [this], set2, result, deps = [], resolved;
 			push.apply(sets, arguments);
@@ -442,6 +440,4 @@ module.exports = memoize(function (ObservableSet) {
 			return result;
 		})
 	});
-
-	return ObservableSet;
 });

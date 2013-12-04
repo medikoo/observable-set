@@ -3,7 +3,6 @@
 var eIndexOf           = require('es5-ext/array/#/e-index-of')
   , i                  = require('es5-ext/function/i')
   , invoke             = require('es5-ext/function/invoke')
-  , validFunction      = require('es5-ext/function/valid-function')
   , callable           = require('es5-ext/object/valid-callable')
   , value              = require('es5-ext/object/valid-value')
   , d                  = require('d/d')
@@ -19,14 +18,13 @@ var eIndexOf           = require('es5-ext/array/#/e-index-of')
 require('memoizee/lib/ext/ref-counter');
 require('memoizee/lib/ext/dispose');
 
-module.exports = memoize(function (ObservableSet) {
+module.exports = memoize(function (prototype) {
 	var ReadOnly;
 
-	validFunction(ObservableSet);
-	validObservableSet(ObservableSet.prototype);
-	ReadOnly = createReadOnly(ObservableSet);
+	validObservableSet(prototype);
+	ReadOnly = createReadOnly(prototype.constructor);
 
-	defineProperties(ObservableSet.prototype, memMethods({
+	return defineProperties(prototype, memMethods({
 		filter: d(function (callbackFn/*, thisArg*/) {
 			var result, thisArg, cb, disposed, listener;
 			(value(this) && callable(callbackFn));
@@ -192,6 +190,4 @@ module.exports = memoize(function (ObservableSet) {
 			return result;
 		}, { length: 2, refCounter: true, dispose: invokeDispose })
 	}));
-
-	return ObservableSet;
 });
