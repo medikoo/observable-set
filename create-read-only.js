@@ -18,6 +18,8 @@ module.exports = memoize(function (Constructor) {
 	validFunction(Constructor);
 	validSet(Constructor.prototype);
 
+	if (Constructor.prototype.__isReadOnly__) return Constructor;
+
 	ReadOnly = function (/* iterable, comparator */) {
 		if (!(this instanceof ReadOnly)) {
 			return new ReadOnly(arguments[0], arguments[1]);
@@ -26,7 +28,8 @@ module.exports = memoize(function (Constructor) {
 	};
 
 	ReadOnly.prototype = create(Constructor.prototype, {
-		constructor: d(ReadOnly)
+		constructor: d(ReadOnly),
+		__isReadOnly__: d('', true)
 	});
 
 	descs = {};
