@@ -73,7 +73,7 @@ module.exports = memoize(function (prototype) {
 							sort.call(result, compareFn);
 							result.emit('change', {
 								type: 'splice',
-								arguments: [eIndexOf.call(result, value), 0, value],
+								arguments: [eIndexOf.call(result, event.value), 0, event.value],
 								removed: []
 							});
 						} else {
