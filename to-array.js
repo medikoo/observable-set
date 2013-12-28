@@ -16,8 +16,8 @@ var aFrom              = require('es5-ext/array/from')
 )
   , validObservableSet = require('./valid-observable-set')
 
-  , push = Array.prototype.push, sort = Array.prototype.sort
-  , splice = Array.prototype.splice
+  , isArray = Array.isArray, push = Array.prototype.push
+  , sort = Array.prototype.sort, splice = Array.prototype.splice
   , defineProperties = Object.defineProperties
   , invokeDispose = invoke('_dispose');
 
@@ -31,7 +31,7 @@ module.exports = memoize(function (prototype) {
 		toArray: d(function (compareFn) {
 			var result, setData, disposed, listener, delListener, clearListener;
 			(value(this) && ((compareFn === undefined) || callable(compareFn)));
-			if (this.__setData__) {
+			if (isArray(this.__setData__)) {
 				setData = this.__setData__;
 				result = ReadOnly.from(setData);
 				this.on('_add', listener = function (index, value) {
