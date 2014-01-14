@@ -22,7 +22,8 @@ module.exports = memoize(function (prototype) {
 	var ReadOnly;
 
 	validObservableSet(prototype);
-	ReadOnly = createReadOnly(prototype.constructor);
+	if (prototype.$add) ReadOnly = createReadOnly(prototype.constructor);
+	else ReadOnly = createReadOnly(require('./'));
 
 	return defineProperties(prototype, memMethods({
 		filter: d(function (callbackFn/*, thisArg*/) {

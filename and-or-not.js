@@ -29,7 +29,8 @@ module.exports = memoize(function (prototype) {
 	var ReadOnly, and, or, not, orMethod;
 
 	validObservableSet(prototype);
-	ReadOnly = createReadOnly(prototype.constructor);
+	if (prototype.$add) ReadOnly = createReadOnly(prototype.constructor);
+	else ReadOnly = createReadOnly(require('./'));
 
 	and = memPrimitive(function (id, a, b) {
 		var result = new ReadOnly(), aListener, bListener, disposed, resolved;
