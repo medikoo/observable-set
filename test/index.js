@@ -4,6 +4,7 @@ var remove    = require('es5-ext/array/#/remove')
   , isSet     = require('es6-set/is-set')
   , toArray   = require('es6-iterator/to-array')
   , filterMap = require('./filter-map').tests
+  , first     = require('./first').tests
   , andOrNot  = require('./and-or-not').tests
   , oToArray  = require('./to-array').tests;
 
@@ -50,6 +51,7 @@ module.exports = function (ObservableSet, a) {
 	a.deep([adds, deletes, clears], [1, 1, 1], "Clear on empty: event");
 
 	filterMap(ObservableSet, a);
+	first(ObservableSet, a);
 	andOrNot(ObservableSet, a);
 	oToArray(ObservableSet, a);
 };
