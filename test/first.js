@@ -18,7 +18,7 @@ exports.tests = function (ObservableSet, a, isPrimitive) {
 	set = new ObservableSet([x, y, z]);
 
 	a.h1("");
-	first = set.first;
+	first = set._first;
 	a(first.value, x, "Initial");
 	first.on('change', function (e) { ++evented; });
 

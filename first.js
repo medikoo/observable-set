@@ -28,7 +28,7 @@ module.exports = memoize(function (prototype) {
 	validObservableSet(prototype);
 
 	return defineProperties(prototype, lazy({
-		first: d(function () {
+		_first: d(function () {
 			var current = getFirst(this), result = new ReadOnly(current);
 			this.on('change', function () { result._setValue(getFirst(this)); });
 			return result;
