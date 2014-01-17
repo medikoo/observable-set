@@ -34,6 +34,7 @@ module.exports = memoize(function (prototype) {
 			if (isArray(this.__setData__)) {
 				setData = this.__setData__;
 				result = ReadOnly.from(setData);
+				if (this._makeObservable_) this._makeObservable_();
 				this.on('_add', listener = function (index, value) {
 					if (compareFn) {
 						push.call(result, value);
