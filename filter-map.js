@@ -75,8 +75,8 @@ module.exports = memoize(function (prototype) {
 			});
 			defineProperties(result, {
 				refresh: d(function (value) {
-					if (!this.has(value)) return;
 					cb.clear(value);
+					if (!this.has(value)) return;
 					if (cb(value)) result._add(value);
 					else result._delete(value);
 				}.bind(this)),
@@ -168,7 +168,10 @@ module.exports = memoize(function (prototype) {
 			defineProperties(result, {
 				refresh: d(function (value) {
 					var pre, post;
-					if (!this.has(value)) return;
+					if (!this.has(value)) {
+						cb.clear(value);
+						return;
+					}
 					pre = cb(value);
 					cb.clear(value);
 					post = cb(value);
