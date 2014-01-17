@@ -8,6 +8,7 @@ var aFrom              = require('es5-ext/array/from')
   , invoke             = require('es5-ext/function/invoke')
   , callable           = require('es5-ext/object/valid-callable')
   , value              = require('es5-ext/object/valid-value')
+  , toArray            = require('es6-iterator/to-array')
   , d                  = require('d/d')
   , memoize            = require('memoizee/lib/regular')
   , memMethods         = require('memoizee/lib/d')(memoize)
@@ -88,8 +89,8 @@ module.exports = memoize(function (prototype) {
 						clear.call(result);
 						result.emit('change', { type: 'clear' });
 					} else if (type === 'batch') {
-						if (event.deleted) remove.apply(result, event.deleted);
-						if (event.added) push.apply(result, event.added);
+						if (event.deleted) remove.apply(result, toArray(event.deleted));
+						if (event.added) push.apply(result, toArray(event.added));
 						if (compareFn) sort.call(result, compareFn);
 						result.emit('change', {});
 					} else {
