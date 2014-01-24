@@ -42,7 +42,7 @@ module.exports = memoize(function (prototype) {
 						sort.call(result, compareFn);
 						result.emit('change', {
 							type: 'splice',
-							arguments: [setData.eIndexOf.call(result, value), 0, value],
+							arguments: [eIndexOf.call(result, value), 0, value],
 							removed: []
 						});
 					} else if (result.length === index) {
@@ -57,7 +57,7 @@ module.exports = memoize(function (prototype) {
 					}
 				});
 				this.on('_delete', delListener = function (index, value) {
-					if (compareFn) index = setData.eIndexOf.call(result, value);
+					if (compareFn) index = eIndexOf.call(result, value);
 					result.emit('change', { type: 'splice', arguments: [index, 1],
 						removed: splice.call(result, index, 1) });
 				});
