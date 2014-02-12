@@ -1,7 +1,7 @@
 'use strict';
 
 var eIndexOf           = require('es5-ext/array/#/e-index-of')
-  , i                  = require('es5-ext/function/i')
+  , identity           = require('es5-ext/function/identity')
   , invoke             = require('es5-ext/function/invoke')
   , callable           = require('es5-ext/object/valid-callable')
   , value              = require('es5-ext/object/valid-value')
@@ -104,7 +104,7 @@ module.exports = memoize(function (prototype) {
 			(value(this) && callable(callbackFn));
 			thisArg = arguments[1];
 			cb = memoize(bind.call(callbackFn, thisArg), { length: 1 });
-			registry = memoize(i, { refCounter: true, dispose: function (val) {
+			registry = memoize(identity, { refCounter: true, dispose: function (val) {
 				if (inClear) return;
 				result._delete(val);
 			} });
