@@ -29,7 +29,7 @@ module.exports = memoize(function (prototype) {
 
 	return defineProperties(prototype, lazy({
 		_first: d(function () {
-			var current = getFirst(this), result = new ReadOnly(current);
+			var result = new ReadOnly(getFirst(this));
 			this.on('change', function () { result._setValue(getFirst(this)); });
 			return result;
 		})
