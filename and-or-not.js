@@ -3,7 +3,7 @@
 var uniq               = require('es5-ext/array/#/uniq')
   , invoke             = require('es5-ext/function/invoke')
   , WeakMap            = require('es6-weak-map')
-  , d                  = require('d/d')
+  , d                  = require('d')
   , memoize            = require('memoizee/lib/regular')
   , memPrimitive       = require('memoizee/lib/primitive')
   , createReadOnly     = require('./create-read-only')

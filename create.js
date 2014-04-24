@@ -3,7 +3,7 @@
 var validFunction      = require('es5-ext/function/valid-function')
   , assign             = require('es5-ext/object/assign')
   , setPrototypeOf     = require('es5-ext/object/set-prototype-of')
-  , d                  = require('d/d')
+  , d                  = require('d')
   , lazy               = require('d/lazy')
   , ee                 = require('event-emitter')
   , memoize            = require('memoizee/lib/regular')

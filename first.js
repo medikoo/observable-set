@@ -1,6 +1,6 @@
 'use strict';
 
-var d                  = require('d/d')
+var d                  = require('d')
   , lazy               = require('d/lazy')
   , memoize            = require('memoizee/lib/regular')
   , ReadOnly           = require('observable-value/create-read-only')(
