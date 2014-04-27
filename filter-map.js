@@ -6,8 +6,10 @@ var eIndexOf           = require('es5-ext/array/#/e-index-of')
   , callable           = require('es5-ext/object/valid-callable')
   , value              = require('es5-ext/object/valid-value')
   , d                  = require('d')
-  , memoize            = require('memoizee/lib/regular')
-  , memMethods         = require('memoizee/lib/d')(memoize)
+  , memoize            = require('memoizee/plain')
+  , memoizeMethods     = require('memoizee/methods-plain')
+  , getNormalizer      = require('memoizee/normalizers/get-fixed')
+  , getNormalizer1     = require('memoizee/normalizers/get-1')
   , createReadOnly     = require('./create-read-only')
   , validObservableSet = require('./valid-observable-set')
 
@@ -15,8 +17,8 @@ var eIndexOf           = require('es5-ext/array/#/e-index-of')
   , defineProperties = Object.defineProperties
   , invokeDispose = invoke('_dispose');
 
-require('memoizee/lib/ext/ref-counter');
-require('memoizee/lib/ext/dispose');
+require('memoizee/ext/ref-counter');
+require('memoizee/ext/dispose');
 
 module.exports = memoize(function (prototype) {
 	var ReadOnly;
@@ -25,12 +27,12 @@ module.exports = memoize(function (prototype) {
 	if (prototype.$add) ReadOnly = createReadOnly(prototype.constructor);
 	else ReadOnly = createReadOnly(require('./'));
 
-	return defineProperties(prototype, memMethods({
+	return defineProperties(prototype, memoizeMethods({
 		filter: d(function (callbackFn/*, thisArg*/) {
 			var result, thisArg, cb, disposed, listener;
 			(value(this) && callable(callbackFn));
 			thisArg = arguments[1];
-			cb = memoize(bind.call(callbackFn, thisArg), { length: 1 });
+			cb = memoize(bind.call(callbackFn, thisArg), { normalizer: getNormalizer1() });
 			result = new ReadOnly();
 			this.on('change', listener = function (event) {
 				var type = event.type;
@@ -81,7 +83,7 @@ module.exports = memoize(function (prototype) {
 					else result._delete(value);
 				}.bind(this)),
 				refreshAll: d(function () {
-					cb.clearAll();
+					cb.clear();
 					this.forEach(function (value) {
 						if (cb(value)) result._add(value);
 						else result._delete(value);
@@ -89,7 +91,7 @@ module.exports = memoize(function (prototype) {
 				}.bind(this)),
 				unref: d(function () {
 					if (disposed) return;
-					this.filter.clearRef(callbackFn, thisArg);
+					this.filter.deleteRef(callbackFn, thisArg);
 				}.bind(this)),
 				_dispose: d(function () {
 					this.off('change', listener);
@@ -97,17 +99,17 @@ module.exports = memoize(function (prototype) {
 				}.bind(this))
 			});
 			return result;
-		}, { length: 2, refCounter: true, dispose: invokeDispose }),
+		}, { length: 2, refCounter: true, dispose: invokeDispose, getNormalizer: getNormalizer }),
 
 		map: d(function (callbackFn/*, thisArg*/) {
 			var result, thisArg, cb, disposed, listener, registry, inClear;
 			(value(this) && callable(callbackFn));
 			thisArg = arguments[1];
-			cb = memoize(bind.call(callbackFn, thisArg), { length: 1 });
+			cb = memoize(bind.call(callbackFn, thisArg), { normalizer: getNormalizer1() });
 			registry = memoize(identity, { refCounter: true, dispose: function (val) {
 				if (inClear) return;
 				result._delete(val);
-			} });
+			}, normalizer: getNormalizer1() });
 			result = new ReadOnly();
 			this.on('change', listener = function (event) {
 				var type = event.type, valid;
@@ -116,12 +118,12 @@ module.exports = memoize(function (prototype) {
 					return;
 				}
 				if (type === 'delete') {
-					registry.clearRef(cb(event.value));
+					registry.deleteRef(cb(event.value));
 					return;
 				}
 				if (type === 'clear') {
 					inClear = true;
-					registry.clearAll();
+					registry.clear();
 					inClear = false;
 					result._clear();
 					return;
@@ -139,7 +141,7 @@ module.exports = memoize(function (prototype) {
 						inClear = true;
 						event.deleted.forEach(function (value) {
 							value = cb(value);
-							registry.clearRef(value);
+							registry.deleteRef(value);
 							if (!registry.getRefCount(value)) {
 								result._delete(value);
 							}
@@ -148,7 +150,7 @@ module.exports = memoize(function (prototype) {
 					}
 				} else {
 					inClear = true;
-					registry.clearAll();
+					registry.clear();
 					inClear = false;
 					valid = [];
 					this.forEach(function (value) {
@@ -169,14 +171,14 @@ module.exports = memoize(function (prototype) {
 				refresh: d(function (value) {
 					var pre, post;
 					if (!this.has(value)) {
-						cb.clear(value);
+						cb.delete(value);
 						return;
 					}
 					pre = cb(value);
-					cb.clear(value);
+					cb.delete(value);
 					post = cb(value);
 					if (pre === post) return;
-					registry.clear(pre);
+					registry.delete(pre);
 					result._add(registry(post));
 				}.bind(this)),
 				refreshAll: d(function () {
@@ -184,7 +186,7 @@ module.exports = memoize(function (prototype) {
 				}.bind(this)),
 				unref: d(function () {
 					if (disposed) return;
-					this.map.clearRef(callbackFn, thisArg);
+					this.map.deleteRef(callbackFn, thisArg);
 				}.bind(this)),
 				_dispose: d(function () {
 					this.off('change', listener);
@@ -192,6 +194,6 @@ module.exports = memoize(function (prototype) {
 				}.bind(this))
 			});
 			return result;
-		}, { length: 2, refCounter: true, dispose: invokeDispose })
+		}, { length: 2, refCounter: true, dispose: invokeDispose, getNormalizer: getNormalizer  })
 	}));
-});
+}, { normalizer: getNormalizer1() });

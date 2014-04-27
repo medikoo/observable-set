@@ -10,8 +10,9 @@ var aFrom              = require('es5-ext/array/from')
   , value              = require('es5-ext/object/valid-value')
   , toArray            = require('es6-iterator/to-array')
   , d                  = require('d')
-  , memoize            = require('memoizee/lib/regular')
-  , memMethods         = require('memoizee/lib/d')(memoize)
+  , memoize            = require('memoizee/plain')
+  , memoizeMethods     = require('memoizee/methods-plain')
+  , getNormalizer      = require('memoizee/normalizers/get-1')
   , ReadOnly           = require('observable-array/create-read-only')(
 	require('observable-array')
 )
@@ -22,13 +23,13 @@ var aFrom              = require('es5-ext/array/from')
   , defineProperties = Object.defineProperties
   , invokeDispose = invoke('_dispose');
 
-require('memoizee/lib/ext/ref-counter');
-require('memoizee/lib/ext/dispose');
+require('memoizee/ext/ref-counter');
+require('memoizee/ext/dispose');
 
 module.exports = memoize(function (prototype) {
 	validObservableSet(prototype);
 
-	return defineProperties(prototype, memMethods({
+	return defineProperties(prototype, memoizeMethods({
 		toArray: d(function (compareFn) {
 			var result, setData, disposed, listener, delListener, clearListener;
 			(value(this) && ((compareFn === undefined) || callable(compareFn)));
@@ -112,7 +113,7 @@ module.exports = memoize(function (prototype) {
 				}.bind(this)),
 				unref: d(function () {
 					if (disposed) return;
-					this.toArray.clearRef(compareFn);
+					this.toArray.deleteRef(compareFn);
 				}.bind(this)),
 				_dispose: d(function () {
 					if (setData) {
@@ -126,6 +127,6 @@ module.exports = memoize(function (prototype) {
 				}.bind(this))
 			});
 			return result;
-		}, { refCounter: true, dispose: invokeDispose })
+		}, { refCounter: true, dispose: invokeDispose, getNormalizer: getNormalizer })
 	}));
-});
+}, { normalizer: getNormalizer() });

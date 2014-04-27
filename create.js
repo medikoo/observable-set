@@ -6,7 +6,7 @@ var validFunction      = require('es5-ext/function/valid-function')
   , d                  = require('d')
   , lazy               = require('d/lazy')
   , ee                 = require('event-emitter')
-  , memoize            = require('memoizee/lib/regular')
+  , memoize            = require('memoizee/plain')
   , validSet           = require('es6-set/valid-set')
   , isObservableSymbol = require('observable-value/symbol-is-observable')
   , createReadOnly     = require('./create-read-only')
@@ -149,4 +149,4 @@ module.exports = memoize(function (Constructor) {
 	defineProperty(Observable.prototype, isObservableSymbol, d('', true));
 
 	return Observable;
-});
+}, { normalizer: require('memoizee/normalizers/get-1')() });

@@ -2,7 +2,7 @@
 
 var validFunction = require('es5-ext/function/valid-function')
   , d             = require('d')
-  , memoize       = require('memoizee/lib/regular')
+  , memoize       = require('memoizee/plain')
   , validSet      = require('es6-set/valid-set')
 
   , create = Object.create, defineProperties = Object.defineProperties
@@ -45,4 +45,4 @@ module.exports = memoize(function (Constructor) {
 	defineProperties(ReadOnly.prototype, descs);
 
 	return ReadOnly;
-});
+}, { normalizer: require('memoizee/normalizers/get-1')() });

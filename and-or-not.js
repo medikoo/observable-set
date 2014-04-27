@@ -4,8 +4,7 @@ var uniq               = require('es5-ext/array/#/uniq')
   , invoke             = require('es5-ext/function/invoke')
   , WeakMap            = require('es6-weak-map')
   , d                  = require('d')
-  , memoize            = require('memoizee/lib/regular')
-  , memPrimitive       = require('memoizee/lib/primitive')
+  , memoize            = require('memoizee/plain')
   , createReadOnly     = require('./create-read-only')
   , validObservableSet = require('./valid-observable-set')
 
@@ -22,8 +21,8 @@ getSetId = (function () {
 	return function (set) { return map.get(set) || (map.set(set, ++i) && i); };
 }());
 
-require('memoizee/lib/ext/ref-counter');
-require('memoizee/lib/ext/dispose');
+require('memoizee/ext/ref-counter');
+require('memoizee/ext/dispose');
 
 module.exports = memoize(function (prototype) {
 	var ReadOnly, and, or, not, orMethod;
@@ -32,7 +31,7 @@ module.exports = memoize(function (prototype) {
 	if (prototype.$add) ReadOnly = createReadOnly(prototype.constructor);
 	else ReadOnly = createReadOnly(require('./'));
 
-	and = memPrimitive(function (id, a, b) {
+	and = memoize(function (id, a, b) {
 		var result = new ReadOnly(), aListener, bListener, disposed, resolved;
 		a.forEach(function (value) {
 			if (b.has(value)) result.$add(value);
@@ -130,7 +129,7 @@ module.exports = memoize(function (prototype) {
 			__and__: d('c', resolved),
 			unref: d(function () {
 				if (disposed) return;
-				and.clearRef(id);
+				and.deleteRef(id);
 			}),
 			_dispose: d(function () {
 				disposed = true;
@@ -146,7 +145,7 @@ module.exports = memoize(function (prototype) {
 		return result;
 	}, { length: 1, refCounter: true, dispose: invokeDispose });
 
-	or = memPrimitive(function (id, a, b) {
+	or = memoize(function (id, a, b) {
 		var result = new ReadOnly(), onAdd, aListener, bListener, disposed
 		  , resolved;
 		a.forEach(onAdd = function (value) { result.$add(value); });
@@ -243,7 +242,7 @@ module.exports = memoize(function (prototype) {
 			__or__: d('c', resolved),
 			unref: d(function () {
 				if (disposed) return;
-				or.clearRef(id);
+				or.deleteRef(id);
 			}),
 			_dispose: d(function () {
 				disposed = true;
@@ -259,7 +258,7 @@ module.exports = memoize(function (prototype) {
 		return result;
 	}, { length: 1, refCounter: true, dispose: invokeDispose });
 
-	not = memPrimitive(function (id, a, b) {
+	not = memoize(function (id, a, b) {
 		var result = new ReadOnly(), aListener, bListener, disposed;
 		a.forEach(function (value) {
 			if (!b.has(value)) result.$add(value);
@@ -348,7 +347,7 @@ module.exports = memoize(function (prototype) {
 		defineProperties(result, {
 			unref: d(function () {
 				if (disposed) return;
-				not.clearRef(id);
+				not.deleteRef(id);
 			}),
 			_dispose: d(function () {
 				disposed = true;
@@ -441,4 +440,4 @@ module.exports = memoize(function (prototype) {
 			return result;
 		})
 	});
-});
+}, { normalizer: require('memoizee/normalizers/get-1')() });
