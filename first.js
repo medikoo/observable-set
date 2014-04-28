@@ -3,9 +3,7 @@
 var d                  = require('d')
   , lazy               = require('d/lazy')
   , memoize            = require('memoizee/plain')
-  , ReadOnly           = require('observable-value/create-read-only')(
-	require('observable-value/value')
-)
+  , ReadOnly           = require('observable-value/create-read-only')(require('observable-value'))
   , validObservableSet = require('./valid-observable-set')
 
   , defineProperties = Object.defineProperties

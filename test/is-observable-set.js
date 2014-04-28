@@ -1,7 +1,7 @@
 'use strict';
 
 var ee              = require('event-emitter')
-  , ObservableValue = require('observable-value/value')
+  , ObservableValue = require('observable-value')
   , Set             = require('es6-set')
   , ObservableSet   = require('../create')(Set);
 

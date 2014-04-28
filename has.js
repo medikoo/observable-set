@@ -4,9 +4,7 @@ var d                 = require('d')
   , memoize           = require('memoizee/plain')
   , memoizeMethods    = require('memoizee/methods-plain')
   , getNormalizer     = require('memoizee/normalizers/get-1')
-  , ReadOnly          = require('observable-value/create-read-only')(
-	require('observable-value/value')
-)
+  , ReadOnly          = require('observable-value/create-read-only')(require('observable-value'))
   , validObservableSet = require('./valid-observable-set')
 
   , defineProperties = Object.defineProperties;
