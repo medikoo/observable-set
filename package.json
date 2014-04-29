@@ -16,9 +16,6 @@
     "type": "git",
     "url": "git://github.com/medikoo/observable-set.git"
   },
-  "scripts": {
-    "test": "node ./node_modules/tad/bin/tad"
-  },
   "dependencies": {
     "d": "git://github.com/medikoo/d.git",
     "es5-ext": "git://github.com/medikoo/es5-ext.git",
@@ -32,6 +29,9 @@
   "devDependencies": {
     "es6-iterator": "git://github.com/medikoo/es6-iterator.git",
     "tad": "~0.1.20"
+  },
+  "scripts": {
+    "test": "node ./node_modules/tad/bin/tad"
   },
   "license": "MIT"
 }
