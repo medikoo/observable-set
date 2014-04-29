@@ -1,6 +1,6 @@
 {
   "name": "observable-set",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Configure observable set collections",
   "author": "Mariusz Nowak <medyk@medikoo.com> (http://www.medikoo.com/)",
   "keywords": [
