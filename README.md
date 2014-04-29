@@ -4,6 +4,12 @@
 
 ### Based on native ECMAScript6 Set
 
+### Installation
+
+	$ npm install observable-set
+
+To port it to Browser or any other (non CJS) environment, use your favorite CJS bundler. No favorite yet? Try: [Browserify](http://browserify.org/), [Webmake](https://github.com/medikoo/modules-webmake) or [Webpack](http://webpack.github.io/)
+
 ### Usage
 
 ```javascript
@@ -108,17 +114,6 @@ set1.add('trzy');   // (ignored)
 set2.delete('trzy'); // Added: trzy
 set1.clear(); // Set cleared
 ```
-
-### Installation
-#### NPM
-
-In your project path:
-
-	$ npm install observable-set
-
-##### Browser
-
-You can easily bundle _observable-set_ for browser with [modules-webmake](https://github.com/medikoo/modules-webmake)
 
 ## Tests [![Build Status](https://travis-ci.org/medikoo/observable-set.png)](https://travis-ci.org/medikoo/observable-set)
 
