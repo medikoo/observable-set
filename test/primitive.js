@@ -2,7 +2,7 @@
 
 var remove    = require('es5-ext/array/#/remove')
   , isSet     = require('es6-set/is-set')
-  , toArray   = require('es6-iterator/to-array')
+  , toArray   = require('es5-ext/array/to-array')
   , first     = require('./first').tests
   , size      = require('./size').tests
   , andOrNot  = require('./and-or-not').tests;

@@ -1,7 +1,7 @@
 'use strict';
 
 var aFrom   = require('es5-ext/array/from')
-  , toArray = require('es6-iterator/to-array')
+  , toArray = require('es5-ext/array/to-array')
 
   , isArray = Array.isArray
   , toString = function () { return this.val; }

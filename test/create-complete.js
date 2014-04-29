@@ -3,7 +3,7 @@
 var remove    = require('es5-ext/array/#/remove')
   , Set       = require('es6-set')
   , isSet     = require('es6-set/is-set')
-  , toArray   = require('es6-iterator/to-array')
+  , toArray   = require('es5-ext/array/to-array')
   , filterMap = require('./filter-map').tests
   , andOrNot  = require('./and-or-not').tests
   , oToArray  = require('./to-array').tests;
