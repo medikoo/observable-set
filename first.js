@@ -3,32 +3,19 @@
 var d                  = require('d')
   , lazy               = require('d/lazy')
   , memoize            = require('memoizee/plain')
+  , getFirst           = require('es6-set/ext/get-first')
   , ReadOnly           = require('observable-value/create-read-only')(require('observable-value'))
   , validObservableSet = require('./valid-observable-set')
 
-  , defineProperties = Object.defineProperties
-  , stopError = new Error('Stop propagation'), getFirst;
-
-getFirst = function (set) {
-	var result;
-	try {
-		set.forEach(function (item) {
-			result = item;
-			throw stopError;
-		});
-	} catch (e) {
-		if (e !== stopError) throw e;
-	}
-	return result;
-};
+  , defineProperties = Object.defineProperties;
 
 module.exports = memoize(function (prototype) {
 	validObservableSet(prototype);
 
 	return defineProperties(prototype, lazy({
 		_first: d(function () {
-			var result = new ReadOnly(getFirst(this));
-			this.on('change', function () { result._setValue(getFirst(this)); });
+			var result = new ReadOnly(getFirst.call(this));
+			this.on('change', function () { result._setValue(getFirst.call(this)); });
 			return result;
 		})
 	}));
