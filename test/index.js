@@ -5,6 +5,7 @@ var remove    = require('es5-ext/array/#/remove')
   , toArray   = require('es5-ext/array/to-array')
   , filterMap = require('./filter-map').tests
   , first     = require('./first').tests
+  , last      = require('./last').tests
   , size      = require('./size').tests
   , andOrNot  = require('./and-or-not').tests
   , oToArray  = require('./to-array').tests;
@@ -53,6 +54,7 @@ module.exports = function (ObservableSet, a) {
 
 	filterMap(ObservableSet, a);
 	first(ObservableSet, a);
+	last(ObservableSet, a);
 	size(ObservableSet, a);
 	andOrNot(ObservableSet, a);
 	oToArray(ObservableSet, a);
