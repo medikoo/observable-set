@@ -56,7 +56,7 @@ module.exports = memoize(function (Constructor) {
 				}
 				return this;
 			}
-			this.emit('change', { type: 'add', value: value });
+			this.emit('change', { type: 'add', value: value, target: this });
 			return this;
 		}),
 		$add: d(add),
@@ -82,7 +82,7 @@ module.exports = memoize(function (Constructor) {
 				}
 			}
 			clear.call(this);
-			if (!this.__postponed__) this.emit('change', { type: 'clear' });
+			if (!this.__postponed__) this.emit('change', { type: 'clear', target: this });
 		}),
 		$clear: d(clear),
 		delete: d(function (value) {
@@ -101,7 +101,7 @@ module.exports = memoize(function (Constructor) {
 				}
 				return this;
 			}
-			this.emit('change', { type: 'delete', value: value });
+			this.emit('change', { type: 'delete', value: value, target: this });
 			return true;
 		}),
 		$delete: d(del),

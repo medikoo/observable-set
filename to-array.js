@@ -44,27 +44,29 @@ module.exports = memoize(function (prototype) {
 						result.emit('change', {
 							type: 'splice',
 							arguments: [eIndexOf.call(result, value), 0, value],
-							removed: []
+							removed: [],
+							target: result
 						});
 					} else if (result.length === index) {
 						push.call(result, value);
-						result.emit('change', { type: 'set', index: index });
+						result.emit('change', { type: 'set', index: index, target: result });
 					} else {
 						result.emit('change', {
 							type: 'splice',
 							arguments: [index, 0, value],
-							removed: splice.call(result, index, 0, value)
+							removed: splice.call(result, index, 0, value),
+							target: this
 						});
 					}
 				});
 				this.on('_delete', delListener = function (index, value) {
 					if (compareFn) index = eIndexOf.call(result, value);
 					result.emit('change', { type: 'splice', arguments: [index, 1],
-						removed: splice.call(result, index, 1) });
+						removed: splice.call(result, index, 1), target: result });
 				});
 				this.on('_clear', clearListener = function (value) {
 					clear.call(result);
-					result.emit('change', { type: 'clear' });
+					result.emit('change', { type: 'clear', target: result });
 				});
 			} else {
 				result = ReadOnly.from(this);
@@ -77,18 +79,19 @@ module.exports = memoize(function (prototype) {
 							result.emit('change', {
 								type: 'splice',
 								arguments: [eIndexOf.call(result, event.value), 0, event.value],
-								removed: []
+								removed: [],
+								target: result
 							});
 						} else {
-							result.emit('change', { type: 'set', index: index - 1 });
+							result.emit('change', { type: 'set', index: index - 1, target: result });
 						}
 					} else if (type === 'delete') {
 						index = eIndexOf.call(result, event.value);
 						result.emit('change', { type: 'splice', arguments: [index, 1],
-							removed: splice.call(result, index, 1) });
+							removed: splice.call(result, index, 1), target: result });
 					} else if (type === 'clear') {
 						clear.call(result);
-						result.emit('change', { type: 'clear' });
+						result.emit('change', { type: 'clear', target: result });
 					} else if (type === 'batch') {
 						if (event.deleted) remove.apply(result, toArray(event.deleted));
 						if (event.added) push.apply(result, toArray(event.added));
