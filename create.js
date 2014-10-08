@@ -45,7 +45,7 @@ module.exports = memoize(function (Constructor) {
 			add.call(this, value);
 			if (this.__postponed__) {
 				event = this.__postponedEvent__;
-				if (!event) event = this.__postponedEvent__ = {};
+				if (!event) event = this.__postponedEvent__ = { target: this };
 				if (event.deleted && event.deleted.has(value)) {
 					event.deleted._delete(value);
 				} else {
@@ -90,7 +90,7 @@ module.exports = memoize(function (Constructor) {
 			if (!del.call(this, value)) return false;
 			if (this.__postponed__) {
 				event = this.__postponedEvent__;
-				if (!event) event = this.__postponedEvent__ = {};
+				if (!event) event = this.__postponedEvent__ = { target: this };
 				if (event.added && event.added.has(value)) {
 					event.added._delete(value);
 				} else {
