@@ -23,9 +23,7 @@ module.exports = memoize(function (Constructor) {
 
 	Observable = function (/*iterable, comparator*/) {
 		var comparator = arguments[1];
-		if (!(this instanceof Observable)) {
-			return new Observable(arguments[0], comparator);
-		}
+		if (!(this instanceof Observable)) throw new TypeError('Constructor requires \'new\'');
 		Constructor.apply(this, arguments);
 		if (!this.__comparator__) {
 			defineProperty(this, '__comparator__', d('', comparator));
