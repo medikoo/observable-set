@@ -112,7 +112,7 @@ module.exports = memoize(function (prototype) {
 			}, normalizer: getNormalizer1() });
 			result = new ReadOnly();
 			this.on('change', listener = function (event) {
-				var type = event.type, valid;
+				var type = event.type;
 				if (type === 'add') {
 					result._add(registry(cb(event.value)));
 					return;
@@ -149,20 +149,7 @@ module.exports = memoize(function (prototype) {
 						inClear = false;
 					}
 				} else {
-					inClear = true;
-					registry.clear();
-					inClear = false;
-					valid = [];
-					this.forEach(function (value) {
-						value = registry(cb(value));
-						valid.push(value);
-						if (result.has(value)) return;
-						result._add(value);
-					});
-					result.forEach(function (value) {
-						if (eIndexOf.call(valid, value)) return;
-						result._delete(value);
-					});
+					throw new TypeError("Unsupported event");
 				}
 				result._postponed_ -= 1;
 			});
