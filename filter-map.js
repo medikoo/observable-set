@@ -13,7 +13,7 @@ var eIndexOf           = require('es5-ext/array/#/e-index-of')
   , createReadOnly     = require('./create-read-only')
   , validObservableSet = require('./valid-observable-set')
 
-  , bind = Function.prototype.bind
+  , isArray = Array.isArray, bind = Function.prototype.bind
   , defineProperties = Object.defineProperties
   , invokeDispose = invoke('_dispose');
 
@@ -102,7 +102,7 @@ module.exports = memoize(function (prototype) {
 		}, { length: 2, refCounter: true, dispose: invokeDispose, getNormalizer: getNormalizer }),
 
 		map: d(function (callbackFn/*, thisArg*/) {
-			var result, thisArg, cb, disposed, listener, registry, inClear;
+			var result, thisArg, cb, disposed, listener, registry, inClear, resultData, index;
 			(value(this) && callable(callbackFn));
 			thisArg = arguments[1];
 			cb = memoize(bind.call(callbackFn, thisArg), { normalizer: getNormalizer1() });
@@ -111,25 +111,20 @@ module.exports = memoize(function (prototype) {
 				result._delete(val);
 			}, normalizer: getNormalizer1() });
 			result = new ReadOnly();
+			if (isArray(result.__setData__)) resultData = result.__setData__;
 			this.on('change', listener = function (event) {
 				var type = event.type;
+				result._postponed_ += 1;
 				if (type === 'add') {
 					result._add(registry(cb(event.value)));
-					return;
-				}
-				if (type === 'delete') {
+				} else if (type === 'delete') {
 					registry.deleteRef(cb(event.value));
-					return;
-				}
-				if (type === 'clear') {
+				} else if (type === 'clear') {
 					inClear = true;
 					registry.clear();
 					inClear = false;
 					result._clear();
-					return;
-				}
-				result._postponed_ += 1;
-				if (type === 'batch') {
+				} else if (type === 'batch') {
 					if (event.added) {
 						event.added.forEach(function (value) {
 							value = registry(cb(value));
@@ -150,6 +145,21 @@ module.exports = memoize(function (prototype) {
 					}
 				} else {
 					throw new TypeError("Unsupported event");
+				}
+				if (resultData) {
+					index = 0;
+					this.forEach(function (item) {
+						var result = cb(item), oldIndex;
+						if (resultData[index] === result) {
+							++index;
+							return;
+						}
+						oldIndex = eIndexOf.call(resultData, result);
+						if ((oldIndex !== -1) && (oldIndex < index)) return;
+						resultData[index] = result;
+						++index;
+					});
+					while (resultData.hasOwnProperty(index)) resultData.pop();
 				}
 				result._postponed_ -= 1;
 			});

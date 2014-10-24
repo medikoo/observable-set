@@ -94,7 +94,7 @@ exports.tests = function (ObservableSet, a) {
 
 	a.h2("Add");
 	w = { val: 33 };
-	set.add(w);
+	set.add(w); // x, y, z, w
 	a.deep(toArray(set2.values()), [24, 86, 108, 66]);
 	a.deep([adds, deletes, clears], [1, 0, 0], "Event");
 
@@ -110,7 +110,7 @@ exports.tests = function (ObservableSet, a) {
 
 	a.h2("Delete");
 	set.delete(x);
-	a.deep(toArray(set2.values()), [108, 66, 88]);
+	a.deep(toArray(set2.values()), [88, 108, 66]);
 	a.deep([adds, deletes, clears], [2, 2, 0], "Event");
 
 	a.h2("Clear");
