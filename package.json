@@ -19,6 +19,7 @@
   "dependencies": {
     "d": "~0.1.1",
     "es5-ext": "~0.10.7",
+    "es6-iterator": "1",
     "es6-set": "git://github.com/medikoo/es6-set.git",
     "es6-weak-map": "~0.1.1",
     "event-emitter": "~0.3.1",
