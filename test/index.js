@@ -52,6 +52,12 @@ module.exports = function (ObservableSet, a) {
 	a.deep(toArray(set.values()), [], "Clear on empty: value");
 	a.deep([adds, deletes, clears], [1, 1, 1], "Clear on empty: event");
 
+	set.reload(['foo', 2, 3]);
+	a.deep(toArray(set.values()), ['foo', 2, 3], "Reload on empty");
+
+	set.reload(['foo', 'marko', 3, 'elo']);
+	a.deep(toArray(set.values()), ['foo', 3, 'marko', 'elo'], "Reload containing");
+
 	filterMap(ObservableSet, a);
 	first(ObservableSet, a);
 	last(ObservableSet, a);

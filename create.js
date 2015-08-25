@@ -8,6 +8,9 @@ var validFunction      = require('es5-ext/function/valid-function')
   , lazy               = require('d/lazy')
   , ee                 = require('event-emitter')
   , memoize            = require('memoizee/plain')
+  , ensureIterable     = require('es6-iterator/valid-iterable')
+  , Set                = require('es6-set')
+  , isSet              = require('es6-set/is-set')
   , validSet           = require('es6-set/valid-set')
   , isObservableSymbol = require('observable-value/symbol-is-observable')
   , createReadOnly     = require('./create-read-only')
@@ -39,6 +42,19 @@ module.exports = memoize(function (Constructor) {
 
 	Observable.prototype = ee(Object.create(Constructor.prototype, assign({
 		constructor: d(Observable),
+		reload: d(function (iterable) {
+			var nu;
+			ensureIterable(iterable);
+			if (!isSet(iterable)) nu = new Set(iterable);
+			else nu = iterable;
+			++this._postponed_;
+			this.forEach(function (value) {
+				if (!nu.has(value)) this.delete(value);
+			}, this);
+			nu.forEach(this.add, this);
+			--this._postponed_;
+			return this;
+		}),
 		add: d(function (value) {
 			var event;
 			if (this.has(value)) return this;
