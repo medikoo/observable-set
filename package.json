@@ -21,7 +21,7 @@
     "es5-ext": "~0.10.7",
     "es6-iterator": "1",
     "es6-set": "git://github.com/medikoo/es6-set.git",
-    "es6-weak-map": "~0.1.1",
+    "es6-weak-map": "^1.0.2",
     "event-emitter": "~0.3.1",
     "memoizee": "~0.3.2",
     "observable-array": "0.0.2",
