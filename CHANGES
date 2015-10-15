@@ -1,3 +1,6 @@
+v0.0.4  --  2015.10.15
+* Update dependencies
+
 v0.0.3  --  2015.10.15
 * Support observable input in `has`
 * Add `reload` method

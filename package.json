@@ -1,6 +1,6 @@
 {
   "name": "observable-set",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Configure observable set collections",
   "author": "Mariusz Nowak <medyk@medikoo.com> (http://www.medikoo.com/)",
   "keywords": [
@@ -24,8 +24,8 @@
     "es6-weak-map": "^1.0.2",
     "event-emitter": "^0.3.4",
     "memoizee": "^0.3.9",
-    "observable-array": "0.0.3",
-    "observable-value": "0.0.4"
+    "observable-array": "0.0.4",
+    "observable-value": "0.0.5"
   },
   "devDependencies": {
     "tad": "^0.2.4",
