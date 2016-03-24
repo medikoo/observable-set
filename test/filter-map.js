@@ -3,7 +3,7 @@
 var toArray = require('es5-ext/array/to-array');
 
 module.exports = exports = function (t, a) {
-	exports.tests(t(require('../create')(require('es6-set'))
+	exports.tests(t(require('../create')(require('es6-set/polyfill'))
 		.prototype).constructor, a);
 };
 
@@ -105,7 +105,7 @@ exports.tests = function (ObservableSet, a) {
 
 	a.h2("Refresh");
 	set2.refresh(y);
-	a.deep(toArray(set2.values()), [24, 108, 66, 88]);
+	a.deep(toArray(set2.values()), [24, 88, 108, 66]);
 	a.deep([adds, deletes, clears], [2, 1, 0], "Event");
 
 	a.h2("Delete");

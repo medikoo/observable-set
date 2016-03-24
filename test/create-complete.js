@@ -1,7 +1,7 @@
 'use strict';
 
 var remove    = require('es5-ext/array/#/remove')
-  , Set       = require('es6-set')
+  , Set       = require('es6-set/polyfill')
   , isSet     = require('es6-set/is-set')
   , toArray   = require('es5-ext/array/to-array')
   , filterMap = require('./filter-map').tests
