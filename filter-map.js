@@ -177,6 +177,21 @@ module.exports = memoize(function (prototype) {
 					if (pre === post) return;
 					registry.delete(pre);
 					result._add(registry(post));
+					if (resultData) {
+						index = 0;
+						this.forEach(function (item) {
+							var result = cb(item), oldIndex;
+							if (resultData[index] === result) {
+								++index;
+								return;
+							}
+							oldIndex = eIndexOf.call(resultData, result);
+							if ((oldIndex !== -1) && (oldIndex < index)) return;
+							resultData[index] = result;
+							++index;
+						});
+						while (resultData.hasOwnProperty(index)) resultData.pop();
+					}
 				}.bind(this)),
 				refreshAll: d(function () {
 					this.forEach(this.refresh, this);
