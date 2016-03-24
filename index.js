@@ -1,3 +1,3 @@
 'use strict';
 
-module.exports = require('./create-complete')(require('es6-set'));
+module.exports = require('./create-complete')(require('es6-set/polyfill'));
