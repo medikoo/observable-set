@@ -1,3 +1,7 @@
+v0.0.5  --  2016.06.03
+* Ensure expected order in map after refresh
+* Force to work with polyfill
+
 v0.0.4  --  2015.10.15
 * Update dependencies
 
