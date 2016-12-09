@@ -100,7 +100,7 @@ module.exports = memoize(function (prototype) {
 							try {
 								sort.call(result, compareFn);
 							} catch (e) {
-								throw new Error("Could not apply sort stack:\n\n" + e.stack +
+								throw new Error("Could not apply sort, error stack:\n\n" + e.stack +
 									"\n\nCompare Fn:\n\n" + String(compareFn) +
 									"\n\nIs String#localeCompare:\n\n" +
 									Boolean(compareFn === String.prototype.localeCompare) +
