@@ -31,7 +31,8 @@ module.exports = memoize(function (prototype) {
 
 	return defineProperties(prototype, memoizeMethods({
 		toArray: d(function (compareFn) {
-			var result, setData, disposed, listener, delListener, clearListener;
+			var result, setData, disposed, listener, delListener, clearListener
+			  , stack = (new Error()).stack;
 			(value(this) && ((compareFn === undefined) || callable(compareFn)));
 			if (isArray(this.__setData__)) {
 				setData = this.__setData__;
@@ -95,7 +96,17 @@ module.exports = memoize(function (prototype) {
 					} else if (type === 'batch') {
 						if (event.deleted) remove.apply(result, toArray(event.deleted));
 						if (event.added) push.apply(result, toArray(event.added));
-						if (compareFn) sort.call(result, compareFn);
+						if (compareFn) {
+							try {
+								sort.call(result, compareFn);
+							} catch (e) {
+								throw new Error("Could not apply sort stack:\n\n" + e.stack +
+									"\n\nCompare Fn:\n\n" + String(compareFn) +
+									"\n\nIs String#localeCompare:\n\n" +
+									Boolean(compareFn === String.prototype.localeCompare) +
+									"\n\nInitialization stack:\n\n" + stack);
+							}
+						}
 						result.emit('change', {});
 					} else {
 						clear.call(result);
