@@ -18,17 +18,17 @@
   },
   "dependencies": {
     "d": "1",
-    "es5-ext": "^0.10.11",
-    "es6-iterator": "2",
-    "es6-set": "^0.1.4",
-    "es6-weak-map": "^2.0.1",
-    "event-emitter": "^0.3.4",
-    "memoizee": "^0.3.10",
+    "es5-ext": "^0.10.30",
+    "es6-iterator": "^2.0.1",
+    "es6-set": "^0.1.5",
+    "es6-weak-map": "^2.0.2",
+    "event-emitter": "^0.3.5",
+    "memoizee": "^0.4.11",
     "observable-array": "0.0.4",
-    "observable-value": "0.0.5"
+    "observable-value": "0.1"
   },
   "devDependencies": {
-    "tad": "^0.2.4",
+    "tad": "^0.2.7",
     "xlint": "^0.2.2",
     "xlint-jslint-medikoo": "^0.1.4"
   },
